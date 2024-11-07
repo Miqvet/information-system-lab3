@@ -1,0 +1,295 @@
+.user-info {
+    position: fixed;
+    top: 10px;
+    right: 10px;
+    background-color:  #EDF5E1;
+    padding: 10px;
+    border-radius: 5px;
+    font-size: 14px;
+}
+body {
+    font-family: 'Montserrat', sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color:#01E08F; /* Светлый фон */
+
+}
+.hero-text {
+    font-size: 48px;
+    font-weight: 700;
+    color: #EDF5E1;
+    text-align: center;
+    margin-top: 100px;
+    letter-spacing: 2px; /* Межбуквенный интервал */
+}
+
+.subtext {
+    font-size: 24px;
+    color: #EDF5E1;
+    text-align: center;
+    margin-top: 20px;
+}
+.menu-btn {
+    position: fixed;
+    top: 5px;
+    left: 5px;
+    font-size: 25px;
+    color: #EDF5E1; /* Цвет текста кнопки меню */
+    background-color: #05386B; /* Темно-синий */
+    padding: 9px 10px 10px 10px;
+    border: none;
+    cursor: pointer;
+    z-index: 1000;
+    transition: background-color 0.3s ease;
+}
+
+.menu-btn:hover {
+    background-color: #379683; /* Изменение цвета при наведении */
+}
+
+.side-menu {
+    height: 100%;
+    width: 0;
+    position: fixed;
+    top: 0;
+    left: 0;
+    background-color: #05386B; /* Темно-синий */
+    overflow-x: hidden;
+    transition: 0.5s;
+    padding-top: 60px;
+    text-align: center;
+}
+
+.side-menu a {
+    padding: 10px 15px;
+    text-decoration: none;
+    font-size: 18px;
+    color: #EDF5E1; /* Цвет текста */
+    display: block;
+    transition: background-color 0.3s ease;
+}
+
+.side-menu a:hover {
+    background-color:#01E08F; /* Основной цвет при наведении */
+}
+
+.content {
+    margin-left: 50px;
+    padding: 20px;
+    background-color: #EDF5E1; /* Основной фон */
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+    transition: margin-left 0.5s;
+}
+
+.show-menu {
+    width: 150px;
+}
+
+.hide-menu {
+    width: 0;
+}
+
+h1 {
+    color: #05386B; /* Цвет заголовка */
+}
+
+
+
+.controlBtn a {
+    color: #EDF5E1;
+    background-color: #05386B;
+    padding: 10px 20px;
+    border-radius: 10px;
+    text-decoration: none;
+    transition: background-color 0.3s ease;
+}
+
+.controlBtn a:hover {
+    background-color: #379683;
+}
+
+
+.form-container {
+    text-align: center;
+    background-color: #EDF5E1; /* Светлый фон */
+    padding: 15px;
+    border-radius: 15px;
+    margin: 20px auto;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); /* Мягкая тень */
+    width: 80%;
+}
+
+.form-container label {
+    margin-right: 10px;
+    font-size: 16px;
+    color: #05386B; /* Темно-синий цвет текста */
+}
+
+.form-container select, .form-container input {
+    padding: 8px 12px;
+    border-radius: 10px;
+    border: 1px solid #379683; /* Зеленоватая окантовка */
+    background-color: #FFFFFF;
+    font-size: 16px;
+    color: #05386B;
+    margin-right: 20px;
+}
+
+.form-container button {
+    background-color: #05386B; /* Темно-синий */
+    color: #EDF5E1; /* Белый текст */
+    padding: 10px 20px;
+    border: none;
+    cursor: pointer;
+    border-radius: 10px;
+    font-size: 16px;
+    transition: background-color 0.3s ease;
+}
+
+.form-container button:hover {
+    background-color: #379683; /* Мягкий зеленый при наведении */
+}
+
+.table-container {
+    margin: 20px auto;
+    width: 90%;
+    border-collapse: separate; /* Раздельное отображение границ */
+    border-spacing: 0 5px; /* Пробелы между строками */
+}
+
+.table-container th, .table-container td {
+    padding: 10px;
+    text-align: center;
+    color: #05386B; /* Темно-синий цвет текста */
+    background-color: #EDF5E1; /* Светлый фон */
+    border-bottom: 2px solid#01E08F; /* Зеленая горизонтальная линия */
+}
+
+.table-container th {
+    background-color: #379683; /* Темно-зеленый заголовок */
+    color: #EDF5E1; /* Белый текст */
+    font-size: 18px;
+    text-align: center;
+}
+
+.table-container td {
+    font-size: 16px;
+    background-color: #EDF5E1; /* Светлый фон для строк */
+}
+
+.table-container tr {
+    transition: background-color 0.3s ease;
+}
+
+.table-container tr:hover {
+    background-color: #c8e6c9; /* Мягкий зеленый при наведении */
+}
+
+.pagination {
+    text-align: center;
+    margin-top: 20px;
+}
+
+.pagination a {
+    color: #05386B;
+    text-decoration: none;
+    padding: 10px 20px;
+    margin: 5px;
+    background-color: #379683; /* Основной зеленый */
+    border-radius: 5px;
+    transition: background-color 0.3s ease;
+}
+
+.pagination a:hover {
+    background-color: #EDF5E1; /* Светлый фон при наведении */
+    color: #05386B; /* Синий текст */
+}
+
+.action-buttons a, .action-buttons form button {
+    display: inline-block;
+    margin-right: 10px;
+    background-color: #05386B;
+    color: #EDF5E1;
+    padding: 5px 10px;
+    border-radius: 5px;
+    text-decoration: none;
+    border: none;
+    transition: background-color 0.3s ease;
+}
+
+.action-buttons a:hover, .action-buttons form button:hover {
+    background-color: #379683; /* Мягкий зеленый при наведении */
+}
+
+.search-form {
+    width: 300px;
+    display: inline-block;
+}
+
+.search-form input {
+    width: 100px;
+}
+
+.inline-search {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    background: transparent;
+}
+
+.inline-search form {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.inline-search label {
+    color: #05386B;
+    font-size: 16px;
+}
+
+.inline-search input {
+    width: 100px;
+    padding: 8px 12px;
+    border-radius: 10px;
+    border: 1px solid #379683;
+    font-size: 16px;
+    color: #05386B;
+}
+
+.inline-search button {
+    background-color: #05386B; /* Темно-синий */
+    color: #EDF5E1; /* Белый текст */
+    padding: 10px 20px;
+    border: none;
+    cursor: pointer;
+    border-radius: 10px;
+    font-size: 16px;
+    transition: background-color 0.3s ease;
+}
+
+.inline-search button:hover {
+    background-color: #379683;
+}
+
+
+.side-menu button {
+    padding: 10px 15px;
+    text-decoration: none;
+    font-size: 18px;
+    color: #EDF5E1;
+    display: block;
+    transition: background-color 0.3s ease;
+    background: none;
+    border: none;
+    width: 100%;
+    text-align: center;
+    font-family: 'Montserrat', sans-serif;
+    margin: 0;
+    cursor: pointer;
+}
+
+.side-menu button:hover {
+    background-color: #01E08F;
+}

@@ -1,0 +1,181 @@
+.user-info {
+    position: fixed;
+    top: 10px;
+    right: 10px;
+    background-color:  #EDF5E1;
+    padding: 10px;
+    border-radius: 5px;
+    font-size: 14px;
+}
+body {
+    font-family: 'Montserrat', sans-serif;
+    margin: 0;
+    padding: 0;
+    background-image: url("../images/main.jpg");
+    background-size: cover; /* Заполнение всего экрана */
+    background-position: center; /* Центрирование изображения */
+    background-repeat: no-repeat; /* Избежание повторения */
+    height: 100vh; /* Высота на 100% экрана */
+}
+.hero-text {
+    font-size: 48px;
+    font-weight: 700;
+    color: #EDF5E1;
+    text-align: center;
+    margin-top: 100px;
+    letter-spacing: 2px; /* Межбуквенный интервал */
+}
+
+.subtext {
+    font-size: 24px;
+    color: #EDF5E1;
+    text-align: center;
+    margin-top: 20px;
+}
+.menu-btn {
+    position: fixed;
+    top: 5px;
+    left: 5px;
+    font-size: 25px;
+    color: #EDF5E1; /* Цвет текста кнопки меню */
+    background-color: #05386B; /* Темно-синий */
+    padding: 9px 10px 10px 10px;
+    border: none;
+    cursor: pointer;
+    z-index: 1000;
+    transition: background-color 0.3s ease;
+}
+
+.menu-btn:hover {
+    background-color: #379683; /* Изменение цвета при наведении */
+}
+
+.side-menu {
+    height: 100%;
+    width: 0;
+    position: fixed;
+    top: 0;
+    left: 0;
+    background-color: #05386B; /* Темно-синий */
+    overflow-x: hidden;
+    transition: 0.5s;
+    padding-top: 60px;
+    text-align: center;
+}
+
+.side-menu a {
+    padding: 10px 15px;
+    text-decoration: none;
+    font-size: 18px;
+    color: #EDF5E1; /* Цвет текста */
+    display: block;
+    transition: background-color 0.3s ease;
+}
+
+.side-menu a:hover {
+    background-color:#01E08F; /* Основной цвет при наведении */
+}
+
+.content {
+    margin-left: 50px;
+    padding: 20px;
+    background-color:#01E08F; /* Основной фон */
+    border-radius: 10px;
+    transition: margin-left 0.5s;
+}
+
+.show-menu {
+    width: 150px;
+}
+
+.hide-menu {
+    width: 0;
+}
+
+h1 {
+    color: #05386B; /* Цвет заголовка */
+}
+h2{
+    text-align: center;
+}
+
+/* Стили для формы авторизации */
+form {
+    background-color:#01E08F; /* Основной цвет */
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+    width: 300px;
+    margin: 0 auto;
+}
+
+form div {
+    margin-bottom: 15px;
+}
+
+label {
+    color: #05386B; /* Цвет текста метки */
+    font-size: 16px;
+    display: block;
+}
+
+input[type="text"],
+input[type="password"] {
+    width: 95%;
+    padding: 10px;
+    border: 1px solid #379683;
+    border-radius: 5px;
+    background-color: #EDF5E1;
+    font-size: 16px;
+    color: #05386B;
+}
+
+input[type="text"]:focus,
+input[type="password"]:focus {
+    outline: none;
+    border-color: #05386B;
+}
+
+/* Изменяем общий стиль кнопок, исключая .menu-btn */
+button:not(.menu-btn) {
+    background-color: #05386B;
+    color: #EDF5E1;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+    cursor: pointer;
+    width: 100%;
+}
+
+button:hover {
+    background-color: #379683;
+}
+
+
+
+/*colors
+для иконок/текстового меню - #05386B
+для текста - #EDF5E1
+основной цвет -#01E08F
+*/
+
+.side-menu button {
+    padding: 10px 15px;
+    text-decoration: none;
+    font-size: 18px;
+    color: #EDF5E1;
+    display: block;
+    transition: background-color 0.3s ease;
+    background: none;
+    border: none;
+    width: 100%;
+    text-align: center;
+    font-family: 'Montserrat', sans-serif;
+    margin: 0;
+    cursor: pointer;
+}
+
+.side-menu button:hover {
+    background-color: #01E08F;
+}

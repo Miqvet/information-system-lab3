@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <title>Create or Edit Study Group</title>
+    <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1.5.0/dist/sockjs.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
+    <link rel="stylesheet" type="text/css" th:href="@{/css/create-edit.css}">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700&display=swap" rel="stylesheet">
+    <script th:src="@{/js/script.js}"></script>
+</head>
+<body>
+<div class="user-info" th:if="${username != null}">
+    <span th:text="${username}"></span>
+</div>
+<button class="menu-btn" 
+        onclick="toggleMenu()" 
+        aria-label="Открыть меню" 
+        aria-expanded="false"
+        aria-controls="sideMenu">&#9776;</button>
+
+<!-- Выдвижное меню -->
+<div class="side-menu" id="sideMenu">
+    <a href="#" th:href="@{/home}">Home</a>
+    <a href="#" th:href="@{/user}">User</a>
+    <a href="#" th:href="@{/user/visualization}">Visualization</a>
+    <a href="#" th:href="@{/login}">Login</a>
+    <a href="#" th:href="@{/register}">Register</a>
+    <button type="button" class="side-menu-button" onclick="document.getElementById('logoutForm').submit();">Logout</button>
+    <a href="#" th:href="@{/admin}" th:if="${#authorization.expression('hasRole(''ADMIN'')')}">Admin</a>
+    <a href="#" th:href="@{/admin/admin-page}" th:if="${#authorization.expression('hasRole(''ADMIN'')')}">Admin Page</a>
+    <form id="logoutForm" th:action="@{/logout}" method="post" style="display: none;"></form>
+</div>
+<h1 th:text="${studyGroup.id != 0} ? 'Edit Study Group' : 'Create Study Group'">Create Study Group</h1>
+<div class="container">
+    <div class="form1">
+        <form class="main-form" th:action="@{${studyGroup.id != 0} ? '/user/study-group/edit/' + ${studyGroup.id} : '/user/study-group/create'}" th:object="${studyGroup}" method="post">
+            <h2 style="text-align:center">Study Group</h2>
+            <!-- Name -->
+            <div>
+                <label for="name1">Name</label>
+                <input type="text" id="name1" th:field="*{name}" />
+                <div th:if="${#fields.hasErrors('name')}" th:errors="*{name}" class="form-errors"></div>
+            </div>
+
+            <!-- Coordinates -->
+            <div>
+                <label for="x">Coordinate X</label>
+                <input type="number" id="x" th:field="*{coordinates.x}" />
+                <div th:if="${#fields.hasErrors('coordinates.x')}" th:errors="*{coordinates.x}" class="form-errors"></div>
+            </div>
+            <div>
+                <label for="y">Coordinate Y</label>
+                <input type="number" id="y" th:field="*{coordinates.y}" />
+                <div th:if="${#fields.hasErrors('coordinates.y')}" th:errors="*{coordinates.y}" class="form-errors"></div>
+            </div>
+
+            <!-- Students Count -->
+            <div>
+                <label for="studentsCount">Students Count</label>
+                <input type="number" id="studentsCount" th:field="*{studentsCount}" />
+                <div th:if="${#fields.hasErrors('studentsCount')}" th:errors="*{studentsCount}" class="form-errors"></div>
+            </div>
+
+            <!-- Expelled Students -->
+            <div>
+                <label for="expelledStudents">Expelled Students</label>
+                <input type="number" id="expelledStudents" th:field="*{expelledStudents}" />
+                <div th:if="${#fields.hasErrors('expelledStudents')}" th:errors="*{expelledStudents}" class="form-errors"></div>
+            </div>
+
+            <!-- Transferred Students -->
+            <div>
+                <label for="transferredStudents">Transferred Students</label>
+                <input type="number" id="transferredStudents" th:field="*{transferredStudents}" />
+                <div th:if="${#fields.hasErrors('transferredStudents')}" th:errors="*{transferredStudents}" class="form-errors"></div>
+            </div>
+
+            <!-- Form of Education -->
+            <div>
+                <label for="formOfEducation">Form of Education</label>
+                <select id="formOfEducation" th:field="*{formOfEducation}">
+                    <option th:each="form : ${formOfEducationEnum}" th:value="${form}" th:text="${form}"></option>
+                </select>
+                <div th:if="${#fields.hasErrors('formOfEducation')}" th:errors="*{formOfEducation}" class="form-errors"></div>
+            </div>
+
+            <!-- Should Be Expelled -->
+            <div>
+                <label for="shouldBeExpelled">Should Be Expelled</label>
+                <input type="number" id="shouldBeExpelled" th:field="*{shouldBeExpelled}" />
+                <div th:if="${#fields.hasErrors('shouldBeExpelled')}" th:errors="*{shouldBeExpelled}" class="form-errors"></div>
+            </div>
+
+            <!-- Average Mark -->
+            <div>
+                <label for="averageMark">Average Mark</label>
+                <input type="number" step="0.01" id="averageMark" th:field="*{averageMark}" />
+                <div th:if="${#fields.hasErrors('averageMark')}" th:errors="*{averageMark}" class="form-errors"></div>
+            </div>
+
+            <!-- Semester -->
+            <div>
+                <label for="semesterEnum">Semester</label>
+                <select id="semesterEnum" th:field="*{semesterEnum}">
+                    <option th:each="semester : ${semesterEnum}" th:value="${semester}" th:text="${semester}"></option>
+                </select>
+                <div th:if="${#fields.hasErrors('semesterEnum')}" th:errors="*{semesterEnum}" class="form-errors">
+                </div>
+            </div>
+
+            <div>
+                <label for="passportID1">ID</label>
+                <input type="text" id="passportID1" th:field="*{groupAdmin}" />
+                <div th:if="${#fields.hasErrors('groupAdmin')}" th:errors="*{groupAdmin}" class="form-errors"></div>
+                <p th:if="${customPassportError != null}" th:text="${customPassportError}" class="form-errors"></p>
+            </div>
+            <label th:if="${studyGroup.id == 0}">
+                <input type="checkbox" th:field="*{canBeChanged}">
+                Can be changed
+            </label>
+            <button type="submit">Submit</button>
+        </form>
+    </div>
+    <div class="right-side">
+    <div class="form2">
+        <!-- Group Admin -->
+        <form class="main-form" th:action="@{${person.id != null} ? '/user/admin/edit/' + ${person.id} : '/user/admin/create'}" th:object="${person}" method="post">
+            <h2 style="text-align:center">Group Admin</h2>
+
+
+            <!-- Name -->
+            <div>
+                <label for="adminName">Admin Name</label>
+                <input type="text" id="adminName" th:field="*{name}" />
+                <div th:if="${#fields.hasErrors('name')}" th:errors="*{name}" class="form-errors"></div>
+            </div>
+
+            <!-- Passport ID -->
+            <div>
+                <label for="newPassportID">Passport ID</label>
+                <input type="text" id="newPassportID" th:field="*{passportID}" />
+                <div th:if="${#fields.hasErrors('passportID')}" th:errors="*{passportID}" class="form-errors"></div>
+                <p th:if="${customPassportError != null}" th:text="${customPassportError}" class="form-errors"></p>
+            </div>
+
+            <!-- Eye color -->
+            <div>
+                <label for="eye_color">Eye color</label>
+                <select id="eye_color" th:field="*{eyeColor}">
+                    <option th:each="color : ${colorEnum}" th:value="${color}" th:text="${color}"></option>
+                </select>
+                <div th:if="${#fields.hasErrors('eyeColor')}" th:errors="*{eyeColor}" class="form-errors"></div>
+            </div>
+
+            <!-- Hair color -->
+            <div>
+                <label for="hair_color">Hair color</label>
+                <select id="hair_color" th:field="*{hairColor}">
+                    <option th:each="color : ${colorEnum}" th:value="${color}" th:text="${color}"></option>
+                </select>
+                <div th:if="${#fields.hasErrors('hairColor')}" th:errors="*{hairColor}" class="form-errors"></div>
+            </div>
+
+            <!-- Nationality -->
+            <div>
+                <label for="nationality">Nationality</label>
+                <select id="nationality" th:field="*{nationality}">
+                    <option th:each="country : ${countryEnum}" th:value="${country}" th:text="${country}"></option>
+                </select>
+                <div th:if="${#fields.hasErrors('nationality')}" th:errors="*{nationality}" class="form-errors"></div>
+            </div>
+
+            <!-- Location -->
+            <fieldset>
+                <legend>Location</legend>
+
+                <!-- Location X -->
+                <div>
+                    <label for="locationX">Location X</label>
+                    <input type="number" id="locationX" th:field="*{location.x}" />
+                    <div th:if="${#fields.hasErrors('location.x')}" th:errors="*{location.x}" class="form-errors"></div>
+                </div>
+
+                <!-- Location Y -->
+                <div>
+                    <label for="locationY">Location Y</label>
+                    <input type="number" step="0.01" id="locationY" th:field="*{location.y}" />
+                    <div th:if="${#fields.hasErrors('location.y')}" th:errors="*{location.y}" class="form-errors"></div>
+                </div>
+
+                <!-- Location Name -->
+                <div>
+                    <label for="locationName">Location Name</label>
+                    <input type="text" id="locationName" th:field="*{location.name}" />
+                    <div th:if="${#fields.hasErrors('location.name')}" th:errors="*{location.name}" class="form-errors"></div>
+                </div>
+            </fieldset>
+            <label th:if="${person.id == null}">
+                <input type="checkbox" th:field="*{canBeChanged}">
+                Can be changed
+            </label>
+            <button type="submit">Submit</button>
+        </form>
+    </div>
+        <div>
+            <table class="table-container">
+                <thead>
+                <tr>
+                    <th>id</th>
+                    <th>name</th>
+                    <th>passportID</th>
+                    <th>Owner</th>
+                    <th>Actions</th>
+                </tr>
+                </thead>
+            </table>
+            <div class="scroll-table-body">
+                <table class="table-container">
+                    <tbody>
+                    <tr th:each="person1 : ${persons}">
+                        <td th:text="${person1.id}"></td>
+                        <td th:text="${person1.name}"></td>
+                        <td th:text="${person1.passportID}"></td>
+                        <td th:text="${person1.createdBy.username}"></td>
+                        <td>
+                            <div class="action-buttons">
+                                <a th:href="@{/user/admin/edit/{id}(id=${person1.id})}">Edit</a>
+                                <form th:action="@{/user/admin/delete/{id}(id=${person1.id})}" method="post" class="button-form">
+                                    <button type="submit">Delete</button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+</div>
+<div th:if="${errorMessage}">
+    <p th:text="${errorMessage}"></p>
+</div>
+
+</body>
+</html>

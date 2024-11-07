@@ -1,0 +1,301 @@
+.user-info {
+    position: fixed;
+    top: 10px;
+    right: 10px;
+    background-color:  #EDF5E1;
+    padding: 10px;
+    border-radius: 5px;
+    font-size: 14px;
+}
+body {
+    font-family: 'Montserrat', sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color:#01E08F; /* Светлый фон */
+}
+.hero-text {
+    font-size: 48px;
+    font-weight: 700;
+    color: #EDF5E1;
+    text-align: center;
+    margin-top: 100px;
+    letter-spacing: 2px; /* Межбуквенный интервал */
+}
+
+.subtext {
+    font-size: 24px;
+    color: #EDF5E1;
+    text-align: center;
+    margin-top: 20px;
+}
+.menu-btn {
+    position: fixed;
+    top: 5px;
+    left: 5px;
+    font-size: 25px;
+    color: #EDF5E1; /* Цвет текста кнопки меню */
+    background-color: #05386B; /* Темно-синий */
+    padding: 9px 10px 10px 10px;
+    border: none;
+    cursor: pointer;
+    z-index: 1000;
+    transition: background-color 0.3s ease;
+}
+
+.menu-btn:hover {
+    background-color: #379683; /* Изменение цвета при наведении */
+}
+
+.side-menu {
+    height: 100%;
+    width: 0;
+    position: fixed;
+    top: 0;
+    left: 0;
+    background-color: #05386B; /* Темно-синий */
+    overflow-x: hidden;
+    transition: 0.5s;
+    padding-top: 60px;
+    text-align: center;
+}
+
+.side-menu a {
+    padding: 10px 15px;
+    text-decoration: none;
+    font-size: 18px;
+    color: #EDF5E1; /* Цвет текста */
+    display: block;
+    transition: background-color 0.3s ease;
+}
+
+.side-menu a:hover {
+    background-color:#01E08F; /* Основной цвет при наведении */
+}
+
+.content {
+    margin-left: 50px;
+    padding: 20px;
+    background-color: #EDF5E1; /* Основной фон */
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+    transition: margin-left 0.5s;
+}
+
+.show-menu {
+    width: 150px;
+}
+
+.hide-menu {
+    width: 0;
+}
+
+h1 {
+    color: #05386B; /* Цвет заголовка */
+}
+
+
+body {
+    background-color:#01E08F;
+    color: #05386B;
+    margin: 0;
+    padding: 0;
+}
+
+h1 {
+    text-align: center;
+}
+
+.main-form {
+    max-width: 600px;
+    margin: 20px auto;
+    padding: 20px;
+    background-color: #8EE4AF;
+    border-radius: 15px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+div {
+    margin-bottom: 15px;
+}
+
+label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+    color: #05386B;
+}
+
+input[type="text"],
+input[type="number"],
+select {
+    width: 100%;
+    padding: 10px;
+    border: 2px solid #EDF5E1;
+    border-radius: 8px;
+    box-sizing: border-box;
+    background-color: #EDF5E1;
+    color: #05386B;
+    font-size: 1em;
+}
+
+input[type="text"]:focus,
+input[type="number"]:focus,
+select:focus {
+    border-color: #379683;
+    outline: none;
+}
+
+fieldset {
+    border: 2px solid #379683;
+    border-radius: 12px;
+    padding: 10px;
+}
+
+legend {
+    padding: 0 10px;
+    color: #05386B;
+    font-weight: bold;
+}
+
+button:not(.menu-btn) {
+    display: block;
+    width: 100%;
+    padding: 8px;
+    background-color: #05386B;
+    border: none;
+    border-radius: 8px;
+    color: white;
+    font-size: 1.1em;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.scroll-table-body a {
+    display: block;
+    width: 100%;
+    padding: 8px 0px 8px 0px;
+    background-color: #05386B;
+    border: none;
+    border-radius: 8px;
+    color: white;
+    font-size: 1.1em;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+button:hover {
+    background-color: #2A7B5F;
+}
+
+.form-errors {
+    color: #FF0000;
+    font-size: 0.85em;
+    margin-top: 5px;
+}
+
+
+.scroll-table-body {
+    height: 300px;
+    overflow-x: auto;
+    margin-top: 0px;
+    margin-bottom: 20px;
+}
+.scroll-table thead th {
+    font-weight: bold;
+    text-align: center;
+    border: none;
+    padding: 10px 15px;
+}
+.scroll-table tbody td {
+    text-align: center;
+    padding: 10px 15px;
+    font-size: 14px;
+    vertical-align: top;
+}
+.scroll-table table {
+    width:100%;
+    table-layout: fixed;
+    border: none;
+}
+
+
+.container {
+    display: flex;
+    justify-content: center; /* Выравниваем элементы по центру */
+    height: 100vh; /* Высота экрана */
+}
+
+.form1 {
+    padding: 20px;
+    width: 50%; /* Задаем ширину правой стороны */
+    max-width: 500px;
+}
+
+.right-side {
+    display: flex;
+    flex-direction: column; /* Вертикальное расположение */
+    width: 50%; /* Задаем ширину правой стороны */
+    max-width: 500px;
+}
+
+.form2 {
+    padding: 20px;
+    margin-bottom: 20px; /* Отступ снизу, чтобы таблица не прилипала */
+}
+
+
+.table-container {
+    margin: auto;
+    width: 90%;
+    border-collapse: separate; /* Раздельное отображение границ */
+    border-spacing: 0 5px; /* Пробелы между строками */
+}
+
+.table-container th, .table-container td {
+    padding: 10px;
+    text-align: center;
+    color: #05386B; /* Темно-синий цвет текста */
+    background-color: #EDF5E1; /* Светлый фон */
+    border-bottom: 2px solid#01E08F; /* Зеленая горизонтальная линия */
+}
+
+.table-container th {
+    background-color: #379683; /* Темно-зеленый заголовок */
+    color: #EDF5E1; /* Белый текст */
+    font-size: 18px;
+    text-align: center;
+}
+
+.table-container td {
+    font-size: 16px;
+    background-color: #EDF5E1; /* Светлый фон для строк */
+}
+
+.table-container tr {
+    transition: background-color 0.3s ease;
+}
+
+.table-container tr:hover {
+    background-color: #c8e6c9; /* Мягкий зеленый при наведении */
+}
+
+
+.side-menu button {
+    padding: 10px 15px;
+    text-decoration: none;
+    font-size: 18px;
+    color: #EDF5E1;
+    display: block;
+    transition: background-color 0.3s ease;
+    background: none;
+    border: none;
+    width: 100%;
+    text-align: center;
+    font-family: 'Montserrat', sans-serif;
+    margin: 0;
+    cursor: pointer;
+}
+
+.side-menu button:hover {
+    background-color: #01E08F;
+}

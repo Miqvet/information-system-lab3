@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <title>Study Groups</title>
+    <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1.5.0/dist/sockjs.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
+    <link rel="stylesheet" type="text/css" th:href="@{/css/user.css}">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700&display=swap" rel="stylesheet">
+    <script th:src="@{/js/script.js}"></script>
+</head>
+<body>
+<div class="user-info" th:if="${username != null}">
+    <span th:text="${username}"></span>
+</div>
+<button class="menu-btn" 
+        onclick="toggleMenu()" 
+        aria-label="Открыть меню" 
+        aria-expanded="false"
+        aria-controls="sideMenu">&#9776;</button>
+
+<!-- Выдвижное меню -->
+<div class="side-menu" id="sideMenu">
+    <a href="#" th:href="@{/home}">Home</a>
+    <a href="#" th:href="@{/user}">User</a>
+    <a href="#" th:href="@{/user/visualization}">Visualization</a>
+    <a href="#" th:href="@{/login}">Login</a>
+    <a href="#" th:href="@{/register}">Register</a>
+    <button type="button" class="side-menu-button" onclick="document.getElementById('logoutForm').submit();">Logout</button>
+    <a href="#" th:href="@{/admin}" th:if="${#authorization.expression('hasRole(''ADMIN'')')}">Admin</a>
+    <a href="#" th:href="@{/admin/admin-page}" th:if="${#authorization.expression('hasRole(''ADMIN'')')}">Admin Page</a>
+    <form id="logoutForm" th:action="@{/logout}" method="post" style="display: none;"></form>
+</div>
+<h1 style="text-align: center">Study Groups</h1>
+
+<div class="form-container">
+    <form method="get" action="/user">
+        <label for="filterField">Filter Field:</label>
+        <select id="filterField" name="filterField" th:value="${filterField}">
+            <option value="id" th:selected="${filterField == 'id'}">ID</option>
+            <option value="name" th:selected="${filterField == 'name'}">Name</option>
+            <option value="studentsCount" th:selected="${filterField == 'studentsCount'}">Students Count</option>
+            <option value="expelledStudents" th:selected="${filterField == 'expelledStudents'}">Expelled Students</option>
+            <option value="transferredStudents" th:selected="${filterField == 'transferredStudents'}">Transferred Students</option>
+            <option value="shouldBeExpelled" th:selected="${filterField == 'shouldBeExpelled'}">Should Be Expelled</option>
+            <option value="averageMark" th:selected="${filterField == 'averageMark'}">Average Mark</option>
+            <option value="transferredStudents" th:selected="${filterField == 'transferredStudents'}">Transferred Students</option>
+            <option value="groupAdmin.location.name" th:selected="${filterField == 'groupAdmin.location.name'}">Location Name</option>
+            <option value="groupAdmin.name" th:selected="${filterField == 'groupAdmin.name'}">Admin Name</option>
+        </select>
+
+        <label for="filterValue">Filter Value:</label>
+        <input type="text" id="filterValue" name="filterValue" placeholder="Filter by value" th:value="${filterValue}" />
+
+        <label for="sortBy">Sort by:</label>
+        <select id="sortBy" name="sortBy" th:value="${sortBy}">
+            <option value="id" th:selected="${sortBy == 'id'}">ID</option>
+            <option value="name" th:selected="${sortBy == 'name'}">Name</option>
+            <option value="studentsCount" th:selected="${sortBy == 'studentsCount'}">Students Count</option>
+            <option value="creationDate" th:selected="${sortBy == 'creationDate'}">Creation Date</option>
+            <option value="expelledStudents" th:selected="${sortBy == 'expelledStudents'}">Expelled Students</option>
+            <option value="transferredStudents" th:selected="${sortBy == 'transferredStudents'}">Transferred Students</option>
+            <option value="shouldBeExpelled" th:selected="${sortBy == 'shouldBeExpelled'}">Should Be Expelled</option>
+            <option value="averageMark" th:selected="${sortBy == 'averageMark'}">Average Mark</option>
+            <option value="transferredStudents" th:selected="${sortBy == 'transferredStudents'}">Transferred Students</option>
+        </select>
+
+        <button type="submit">Filter & Sort</button>
+    </form>
+</div>
+
+<div style="text-align: center" class="controlBtn">
+    <span>Page: </span>
+    <span th:text="${currentPage}"></span> / <span th:text="${totalPages}"></span>
+
+    <a th:href="@{/user/create}">Create new Study Group</a>
+    <div class="inline-search">
+        <form action="#" th:action="@{/user/find}" method="get">
+            <label for="id">Enter Group ID:</label>
+            <input type="number" id="id" name="id" required>
+            <button type="submit">Find</button>
+        </form>
+    </div>
+</div>
+
+<table class="table-container">
+    <thead>
+    <tr>
+        <th>ID</th>
+        <th>Name</th>
+        <th>Coordinates (X, Y)</th>
+        <th>Creation Date</th>
+        <th>Students Count</th>
+        <th>Expelled Students</th>
+        <th>Transferred Students</th>
+        <th>Form of Education</th>
+        <th>Should Be Expelled</th>
+        <th>Average Mark</th>
+        <th>Semester</th>
+        <th>Group Admin (id, name)</th>
+        <th>Owner</th>
+        <th>Actions</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="group : ${studyGroups}">
+        <td th:text="${group.id}"></td>
+        <td th:text="${group.name}"></td>
+        <td th:text="${group.coordinates.x} + ', ' + ${group.coordinates.y}"></td>
+        <td th:text="${#dates.format(group.creationDate, 'yyyy-MM-dd HH:mm:ss')}"></td>
+        <td th:text="${group.studentsCount}"></td>
+        <td th:text="${group.expelledStudents}"></td>
+        <td th:text="${group.transferredStudents}"></td>
+        <td th:text="${group.formOfEducation}"></td>
+        <td th:text="${group.shouldBeExpelled}"></td>
+        <td th:text="${group.averageMark}"></td>
+        <td th:text="${group.semesterEnum}"></td>
+        <td th:text="${group.groupAdmin.id} + ', ' + ${group.groupAdmin.name}"></td>
+        <td th:text="${group.createdBy.username}"></td>
+        <td>
+            <div class="action-buttons">
+                <a th:href="@{/user/study-group/edit/{id}(id=${group.id})}">Edit</a>
+                <form th:action="@{/user/study-group/delete/{id}(id=${group.id})}" method="post">
+                    <button type="submit">Delete</button>
+                </form>
+            </div>
+        </td>
+    </tr>
+    </tbody>
+</table>
+
+
+<div class="pagination">
+    <a th:if="${currentPage > 1}" th:href="@{/user(page=${currentPage - 1})}">Previous Page</a>
+    <a th:if="${currentPage < totalPages}" th:href="@{/user(page=${currentPage + 1})}">Next Page</a>
+</div>
+
+
+</body>
+
+<script type="text/javascript">
+    var stompClient = null;
+
+    function connect() {
+        var socket = new SockJS('/ws');
+        stompClient = Stomp.over(socket);
+        stompClient.connect({}, function (frame) {
+            console.log('Connected: ' + frame);
+            stompClient.subscribe('/topic/updates', function (message) {
+                showUpdate(message.body);
+            });
+        });
+    }
+
+    function showUpdate(message) {
+        // Отправляем GET запрос на /user для получения обновлённой страницы
+        fetch(window.location.href)
+            .then(response => response.text()) // Получаем текст HTML
+            .then(html => {
+                // Создаём временный DOM элемент для работы с полученной HTML-страницей
+                var parser = new DOMParser();
+                var doc = parser.parseFromString(html, 'text/html');
+
+                // Извлекаем новую таблицу из полученной HTML-страницы
+                var newTable = doc.querySelector('.table-container');
+
+                // Находим текущую таблицу на странице
+                var oldTable = document.querySelector('.table-container');
+
+                // Заменяем старую таблицу на новую
+                if (oldTable && newTable) {
+                    oldTable.innerHTML = newTable.innerHTML;
+                }
+            })
+            .catch(error => console.error('Ошибка при загрузке обновлённой страницы:', error));
+    }
+
+    window.onload = function () {
+        connect();
+    };
+</script>
+</html>

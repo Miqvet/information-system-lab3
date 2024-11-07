@@ -1,0 +1,150 @@
+.user-info {
+    position: fixed;
+    top: 10px;
+    right: 10px;
+    background-color:  #EDF5E1;
+    padding: 10px;
+    border-radius: 5px;
+    font-size: 14px;
+    color: #05386B;
+}
+.hero-text {
+    font-size: 48px;
+    font-weight: 700;
+    color: #EDF5E1;
+    text-align: center;
+    margin-top: 100px;
+    letter-spacing: 2px; /* Межбуквенный интервал */
+}
+
+.subtext {
+    font-size: 24px;
+    color: #EDF5E1;
+    text-align: center;
+    margin-top: 20px;
+}
+.menu-btn {
+    position: fixed;
+    top: 5px;
+    left: 5px;
+    font-size: 25px;
+    color: #EDF5E1; /* Цвет текста кнопки меню */
+    background-color: #05386B; /* Темно-синий */
+    padding: 9px 10px 10px 10px;
+    border: none;
+    cursor: pointer;
+    z-index: 1000;
+    transition: background-color 0.3s ease;
+}
+
+.menu-btn:hover {
+    background-color: #379683; /* Изменение цвета при наведении */
+}
+
+.side-menu {
+    height: 100%;
+    width: 0;
+    position: fixed;
+    top: 0;
+    left: 0;
+    background-color: #05386B; /* Темно-синий */
+    overflow-x: hidden;
+    transition: 0.5s;
+    padding-top: 60px;
+    text-align: center;
+}
+
+.side-menu a {
+    padding: 10px 15px;
+    text-decoration: none;
+    font-size: 18px;
+    color: #EDF5E1; /* Цвет текста */
+    display: block;
+    transition: background-color 0.3s ease;
+}
+
+.side-menu a:hover {
+    background-color:#01E08F; /* Основной цвет при наведении */
+}
+
+.content {
+    margin-left: 50px;
+    padding: 20px;
+    background-color: #EDF5E1; /* Основной фон */
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+    transition: margin-left 0.5s;
+}
+
+.show-menu {
+    width: 150px;
+}
+
+.hide-menu {
+    width: 0;
+}
+
+
+
+body {
+    font-family: 'Montserrat', sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color:#01E08F; /* Светлый фон */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    flex-direction: column;
+    color: #EDF5E1;
+    text-align: center;
+}
+
+h1 {
+    font-size: 48px;
+    font-weight: 700;
+    color: #05386B; /* Королевский синий */
+    margin-bottom: 20px;
+    letter-spacing: 2px;
+}
+
+#visualizationContainer {
+    border: 5px solid #05386B; /* Рамка */
+    padding: 20px;
+    background-color: #EDF5E1; /* Светлый фон */
+    border-radius: 10px;
+}
+
+canvas {
+    background-color: #8EE4AF; /* Светло-зеленый для фона canvas */
+    border-radius: 10px;
+}
+
+.info-text {
+    font-size: 18px;
+    color: #05386B;
+    margin-top: 20px;
+}
+
+
+
+
+.side-menu button {
+    padding: 10px 15px;
+    text-decoration: none;
+    font-size: 18px;
+    color: #EDF5E1;
+    display: block;
+    transition: background-color 0.3s ease;
+    background: none;
+    border: none;
+    width: 100%;
+    text-align: center;
+    font-family: 'Montserrat', sans-serif;
+    margin: 0;
+    cursor: pointer;
+}
+
+.side-menu button:hover {
+    background-color: #01E08F;
+}

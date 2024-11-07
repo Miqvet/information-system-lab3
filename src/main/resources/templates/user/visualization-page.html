@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <title>StudyGroup Visualization</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1.5.0/dist/sockjs.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
+    <link rel="stylesheet" type="text/css" th:href="@{/css/visualization.css}">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700&display=swap" rel="stylesheet">
+    <script th:src="@{/js/script.js}"></script>
+    <style>
+        canvas {
+            border: 1px solid black;
+        }
+    </style>
+</head>
+<body>
+<div class="user-info" th:if="${username != null}">
+    <span th:text="${username}"></span>
+</div>
+<button class="menu-btn" 
+        onclick="toggleMenu()" 
+        aria-label="Открыть меню" 
+        aria-expanded="false"
+        aria-controls="sideMenu">&#9776;</button>
+
+<!-- Выдвижное меню -->
+<div class="side-menu" id="sideMenu">
+    <a href="#" th:href="@{/home}">Home</a>
+    <a href="#" th:href="@{/user}">User</a>
+    <a href="#" th:href="@{/user/visualization}">Visualization</a>
+    <a href="#" th:href="@{/login}">Login</a>
+    <a href="#" th:href="@{/register}">Register</a>
+    <button type="button" class="side-menu-button" onclick="document.getElementById('logoutForm').submit();">Logout</button>
+    <a href="#" th:href="@{/admin}" th:if="${#authorization.expression('hasRole(''ADMIN'')')}">Admin</a>
+    <a href="#" th:href="@{/admin/admin-page}" th:if="${#authorization.expression('hasRole(''ADMIN'')')}">Admin Page</a>
+    <form id="logoutForm" th:action="@{/logout}" method="post" style="display: none;"></form>
+</div>
+<h1>StudyGroup Visualization</h1>
+
+<!-- Контейнер для визуализации -->
+<div id="visualizationContainer">
+    <canvas id="visualizationCanvas" width="600" height="600"></canvas>
+</div>
+
+<div id="infoModal" class="modal" style="display:none;">
+    <div class="modal-content">
+        <button class="close-btn" 
+                onclick="closeModal()" 
+                aria-label="Закрыть окно"
+                type="button">&times;</button>
+        <h2 id="groupTitle">Study Group Details</h2>
+        <p id="groupInfo"></p>
+        <a id="editLink" href="#">Edit Group</a>
+    </div>
+</div>
+
+<!-- Текстовое описание -->
+<p class="info-text">Here is a visual representation of your Study Group's performance.</p>
+
+<style>
+    /* Стиль для модального окна */
+    .modal {
+        position: fixed;
+        z-index: 1000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .modal-content {
+        background-color: #00E676;
+        padding: 20px;
+        border-radius: 10px;
+        width: 300px;
+        text-align: center;
+        position: relative; /* Чтобы иконка закрытия была позиционирована внутри окна */
+    }
+
+    .close-btn {
+        position: absolute;
+        right: 10px;
+        top: 10px;
+        font-size: 24px; /* Увеличим размер для видимости */
+        color: #333;
+        cursor: pointer;
+        font-weight: bold; /* Сделаем иконку жирной */
+    }
+
+    #editLink {
+        display: block;
+        margin-top: 15px;
+        padding: 10px;
+        background-color: royalblue;
+        color: white;
+        text-decoration: none;
+        border-radius: 5px;
+    }
+</style>
+
+<script>
+    const canvas = document.getElementById('visualizationCanvas');
+    const ctx = canvas.getContext('2d');
+    const studyGroupsArray = [];
+
+    // AJAX-запрос для загрузки данных StudyGroup
+    fetch('/user/study-groups')
+        .then(response => response.json())
+        .then(studyGroups => {
+            const canvas = document.getElementById('visualizationCanvas');
+            const ctx = canvas.getContext('2d');
+
+            // Для удаления всех элементов, очистите канвас
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            const userColors = {};
+            console.log(studyGroups)
+            studyGroups.forEach(group => {
+                if (!userColors[group.createdBy.username]) {
+                    userColors[group.createdBy.username] = getRandomColor();
+                }
+
+                const x = group.coordinates.x + 280;
+                const y = group.coordinates.y + 280;
+                const size = Math.sqrt(group.studentsCount) * 5;
+
+                // Сохраняем объект с его координатами и ID
+                studyGroupsArray.push({
+                    id: group.id,
+                    x: x,
+                    y: y,
+                    size: size,
+                    name: group.name,
+                    createdBy: group.createdBy.username,
+                    studentsCount: group.studentsCount
+                });
+
+                drawStudyGroup(x, y, size, userColors[group.createdBy.username]);
+            });
+        })
+        .catch(error => console.error('Ошибка загрузки данных:', error));
+
+    function drawStudyGroup(x, y, size, color) {
+        ctx.fillStyle = color;
+        ctx.fillRect(x, y, size, size);
+        ctx.strokeRect(x, y, size, size);
+    }
+
+    function getRandomColor() {
+        const letters = '0123456789ABCDEF';
+        let color = '#';
+        for (let i = 0; i < 6; i++) {
+            color += letters[Math.floor(Math.random() * 16)];
+        }
+        return color;
+    }
+
+    // Обработчик клика по Canvas
+    canvas.addEventListener('click', function(event) {
+        const rect = canvas.getBoundingClientRect();
+        const x = event.clientX - rect.left;
+        const y = event.clientY - rect.top;
+
+        // Проверяем, попадает ли клик в один из объектов
+        studyGroupsArray.forEach(group => {
+            if (x >= group.x && x <= group.x + group.size &&
+                y >= group.y && y <= group.y + group.size) {
+                // Открываем модальное окно с информацией об объекте
+                showModal(group);
+            }
+        });
+    });
+
+    function showModal(group) {
+        const modal = document.getElementById('infoModal');
+        document.getElementById('groupTitle').innerText = group.name;
+        document.getElementById('groupInfo').innerText = `Created by: ${group.createdBy}\nStudents: ${group.studentsCount}`;
+        document.getElementById('editLink').href = `/user/study-group/edit/${group.id}`;
+        modal.style.display = 'flex';
+    }
+
+    function closeModal() {
+        const modal = document.getElementById('infoModal');
+        modal.style.display = 'none';
+    }
+
+
+    var stompClient = null;
+
+    function connect() {
+        var socket = new SockJS('/ws');
+        stompClient = Stomp.over(socket);
+        stompClient.connect({}, function (frame) {
+            console.log('Connected: ' + frame);
+            stompClient.subscribe('/topic/updates', function (message) {
+                showUpdate(message.body);
+            });
+        });
+    }
+
+    function showUpdate(message) {
+        // AJAX-запрос для загрузки данных StudyGroup
+        fetch('/user/study-groups')
+            .then(response => response.json())
+            .then(studyGroups => {
+                const canvas = document.getElementById('visualizationCanvas');
+                const ctx = canvas.getContext('2d');
+
+                // Для удаления всех элементов, очистите канвас
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                const userColors = {};
+                console.log(studyGroups)
+                studyGroups.forEach(group => {
+                    if (!userColors[group.createdBy.username]) {
+                        userColors[group.createdBy.username] = getRandomColor();
+                    }
+
+                    const x = group.coordinates.x + 280;
+                    const y = group.coordinates.y + 280;
+                    const size = Math.sqrt(group.studentsCount) * 5;
+
+                    // Сохраняем объект с его координатами и ID
+                    studyGroupsArray.push({
+                        id: group.id,
+                        x: x,
+                        y: y,
+                        size: size,
+                        name: group.name,
+                        createdBy: group.createdBy.username,
+                        studentsCount: group.studentsCount
+                    });
+
+                    drawStudyGroup(x, y, size, userColors[group.createdBy.username]);
+                });
+            })
+            .catch(error => console.error('Ошибка загрузки данных:', error));
+    }
+
+    window.onload = function () {
+        connect();
+    };
+</script>
+</body>
+</html>
+
