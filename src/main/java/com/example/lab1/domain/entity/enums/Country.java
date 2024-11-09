@@ -1,4 +1,4 @@
-package com.example.lab1.entity.enums;
+package com.example.lab1.domain.entity.enums;
 
 public enum Country {
     GERMANY,

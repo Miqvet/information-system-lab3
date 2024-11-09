@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org", lang="en">
+<head>
+    <title>Ошибка метода</title>
+</head>
+
+<div th:replace="fragments/common :: menu"></div>
+
+<body>
+    <h1>405 - Метод не поддерживается</h1>
+    <p th:text="${message}"></p>
+    <p>Поддерживаемые методы: <span th:text="${supportedMethods}"></span></p>
+    <a href="/home">Вернуться на главную</a>
+</body>
+</html> 

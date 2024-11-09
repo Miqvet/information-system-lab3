@@ -1,8 +1,8 @@
-package com.example.lab1.entity;
+package com.example.lab1.domain.entity;
 
-import com.example.lab1.entity.auth.User;
-import com.example.lab1.entity.enums.Color;
-import com.example.lab1.entity.enums.Country;
+import com.example.lab1.domain.entity.enums.Color;
+import com.example.lab1.domain.entity.enums.Country;
+import com.example.lab1.domain.entity.auth.User;
 import jakarta.persistence.*;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotEmpty;

@@ -6,35 +6,22 @@
     <script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
     <link rel="stylesheet" type="text/css" th:href="@{/css/create-edit.css}">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700&display=swap" rel="stylesheet">
+
     <script th:src="@{/js/script.js}"></script>
+    <script th:src="@{/js/form-persistence.js}"></script>
 </head>
 <body>
-<div class="user-info" th:if="${username != null}">
-    <span th:text="${username}"></span>
-</div>
-<button class="menu-btn" 
-        onclick="toggleMenu()" 
-        aria-label="Открыть меню" 
-        aria-expanded="false"
-        aria-controls="sideMenu">&#9776;</button>
 
-<!-- Выдвижное меню -->
-<div class="side-menu" id="sideMenu">
-    <a href="#" th:href="@{/home}">Home</a>
-    <a href="#" th:href="@{/user}">User</a>
-    <a href="#" th:href="@{/user/visualization}">Visualization</a>
-    <a href="#" th:href="@{/login}">Login</a>
-    <a href="#" th:href="@{/register}">Register</a>
-    <button type="button" class="side-menu-button" onclick="document.getElementById('logoutForm').submit();">Logout</button>
-    <a href="#" th:href="@{/admin}" th:if="${#authorization.expression('hasRole(''ADMIN'')')}">Admin</a>
-    <a href="#" th:href="@{/admin/admin-page}" th:if="${#authorization.expression('hasRole(''ADMIN'')')}">Admin Page</a>
-    <form id="logoutForm" th:action="@{/logout}" method="post" style="display: none;"></form>
-</div>
-<h1 th:text="${studyGroup.id != 0} ? 'Edit Study Group' : 'Create Study Group'">Create Study Group</h1>
+    <div th:replace="fragments/common :: menu"></div>
+    
+<h1 th:text="'Create/Edit page'"/>
 <div class="container">
     <div class="form1">
-        <form class="main-form" th:action="@{${studyGroup.id != 0} ? '/user/study-group/edit/' + ${studyGroup.id} : '/user/study-group/create'}" th:object="${studyGroup}" method="post">
-            <h2 style="text-align:center">Study Group</h2>
+        <form class="main-form" th:action="@{${studyGroup.id != 0} ? '/user/group/edit/' + ${studyGroup.id} : '/user/group/create'}" th:object="${studyGroup}" method="post">
+            <h2 style="text-align:center" th:if="${studyGroup.id == 0}" >Create study group</h2>
+            <h2 style="text-align:center"
+                th:if="${studyGroup != null && studyGroup.id != 0}"
+                th:text="'Edit study group with ID ' + ${studyGroup.id}"></h2>
             <!-- Name -->
             <div>
                 <label for="name1">Name</label>
@@ -122,86 +109,88 @@
         </form>
     </div>
     <div class="right-side">
-    <div class="form2">
-        <!-- Group Admin -->
-        <form class="main-form" th:action="@{${person.id != null} ? '/user/admin/edit/' + ${person.id} : '/user/admin/create'}" th:object="${person}" method="post">
-            <h2 style="text-align:center">Group Admin</h2>
+        <div class="form2">
+            <!-- Group Admin -->
+            <form class="main-form" th:action="@{${person.id != null} ? '/user/people/edit/' + ${person.id} : '/user/people/create'}" th:object="${person}" method="post">
+                <h2 style="text-align:center" th:if="${person.id == null}" >Create person</h2>
+                <h2 style="text-align:center"
+                    th:if="${person.id != null && person.id != 0}"
+                    th:text="'Edit person with ID ' + ${person.id}"></h2>
 
-
-            <!-- Name -->
-            <div>
-                <label for="adminName">Admin Name</label>
-                <input type="text" id="adminName" th:field="*{name}" />
-                <div th:if="${#fields.hasErrors('name')}" th:errors="*{name}" class="form-errors"></div>
-            </div>
-
-            <!-- Passport ID -->
-            <div>
-                <label for="newPassportID">Passport ID</label>
-                <input type="text" id="newPassportID" th:field="*{passportID}" />
-                <div th:if="${#fields.hasErrors('passportID')}" th:errors="*{passportID}" class="form-errors"></div>
-                <p th:if="${customPassportError != null}" th:text="${customPassportError}" class="form-errors"></p>
-            </div>
-
-            <!-- Eye color -->
-            <div>
-                <label for="eye_color">Eye color</label>
-                <select id="eye_color" th:field="*{eyeColor}">
-                    <option th:each="color : ${colorEnum}" th:value="${color}" th:text="${color}"></option>
-                </select>
-                <div th:if="${#fields.hasErrors('eyeColor')}" th:errors="*{eyeColor}" class="form-errors"></div>
-            </div>
-
-            <!-- Hair color -->
-            <div>
-                <label for="hair_color">Hair color</label>
-                <select id="hair_color" th:field="*{hairColor}">
-                    <option th:each="color : ${colorEnum}" th:value="${color}" th:text="${color}"></option>
-                </select>
-                <div th:if="${#fields.hasErrors('hairColor')}" th:errors="*{hairColor}" class="form-errors"></div>
-            </div>
-
-            <!-- Nationality -->
-            <div>
-                <label for="nationality">Nationality</label>
-                <select id="nationality" th:field="*{nationality}">
-                    <option th:each="country : ${countryEnum}" th:value="${country}" th:text="${country}"></option>
-                </select>
-                <div th:if="${#fields.hasErrors('nationality')}" th:errors="*{nationality}" class="form-errors"></div>
-            </div>
-
-            <!-- Location -->
-            <fieldset>
-                <legend>Location</legend>
-
-                <!-- Location X -->
+                <!-- Name -->
                 <div>
-                    <label for="locationX">Location X</label>
-                    <input type="number" id="locationX" th:field="*{location.x}" />
-                    <div th:if="${#fields.hasErrors('location.x')}" th:errors="*{location.x}" class="form-errors"></div>
+                    <label for="adminName">Admin Name</label>
+                    <input type="text" id="adminName" th:field="*{name}" />
+                    <div th:if="${#fields.hasErrors('name')}" th:errors="*{name}" class="form-errors"></div>
                 </div>
 
-                <!-- Location Y -->
+                <!-- Passport ID -->
                 <div>
-                    <label for="locationY">Location Y</label>
-                    <input type="number" step="0.01" id="locationY" th:field="*{location.y}" />
-                    <div th:if="${#fields.hasErrors('location.y')}" th:errors="*{location.y}" class="form-errors"></div>
+                    <label for="newPassportID">Passport ID</label>
+                    <input type="text" id="newPassportID" th:field="*{passportID}" />
+                    <div th:if="${#fields.hasErrors('passportID')}" th:errors="*{passportID}" class="form-errors"></div>
+                    <p th:if="${customPassportError != null}" th:text="${customPassportError}" class="form-errors"></p>
                 </div>
 
-                <!-- Location Name -->
+                <!-- Eye color -->
                 <div>
-                    <label for="locationName">Location Name</label>
-                    <input type="text" id="locationName" th:field="*{location.name}" />
-                    <div th:if="${#fields.hasErrors('location.name')}" th:errors="*{location.name}" class="form-errors"></div>
+                    <label for="eye_color">Eye color</label>
+                    <select id="eye_color" th:field="*{eyeColor}">
+                        <option th:each="color : ${colorEnum}" th:value="${color}" th:text="${color}"></option>
+                    </select>
+                    <div th:if="${#fields.hasErrors('eyeColor')}" th:errors="*{eyeColor}" class="form-errors"></div>
                 </div>
-            </fieldset>
-            <label th:if="${person.id == null}">
-                <input type="checkbox" th:field="*{canBeChanged}">
-                Can be changed
-            </label>
-            <button type="submit">Submit</button>
-        </form>
-    </div>
+
+                <!-- Hair color -->
+                <div>
+                    <label for="hair_color">Hair color</label>
+                    <select id="hair_color" th:field="*{hairColor}">
+                        <option th:each="color : ${colorEnum}" th:value="${color}" th:text="${color}"></option>
+                    </select>
+                    <div th:if="${#fields.hasErrors('hairColor')}" th:errors="*{hairColor}" class="form-errors"></div>
+                </div>
+
+                <!-- Nationality -->
+                <div>
+                    <label for="nationality">Nationality</label>
+                    <select id="nationality" th:field="*{nationality}">
+                        <option th:each="country : ${countryEnum}" th:value="${country}" th:text="${country}"></option>
+                    </select>
+                    <div th:if="${#fields.hasErrors('nationality')}" th:errors="*{nationality}" class="form-errors"></div>
+                </div>
+
+                <!-- Location -->
+                <fieldset>
+                    <legend>Location</legend>
+
+                    <!-- Location X -->
+                    <div>
+                        <label for="locationX">Location X</label>
+                        <input type="number" id="locationX" th:field="*{location.x}" />
+                        <div th:if="${#fields.hasErrors('location.x')}" th:errors="*{location.x}" class="form-errors"></div>
+                    </div>
+
+                    <!-- Location Y -->
+                    <div>
+                        <label for="locationY">Location Y</label>
+                        <input type="number" step="0.01" id="locationY" th:field="*{location.y}" />
+                        <div th:if="${#fields.hasErrors('location.y')}" th:errors="*{location.y}" class="form-errors"></div>
+                    </div>
+
+                    <!-- Location Name -->
+                    <div>
+                        <label for="locationName">Location Name</label>
+                        <input type="text" id="locationName" th:field="*{location.name}" />
+                        <div th:if="${#fields.hasErrors('location.name')}" th:errors="*{location.name}" class="form-errors"></div>
+                    </div>
+                </fieldset>
+                <label th:if="${person.id == null}">
+                    <input type="checkbox" th:field="*{canBeChanged}">
+                    Can be changed
+                </label>
+                <button type="submit">Submit</button>
+            </form>
+        </div>
         <div>
             <table class="table-container">
                 <thead>
@@ -224,8 +213,8 @@
                         <td th:text="${person1.createdBy.username}"></td>
                         <td>
                             <div class="action-buttons">
-                                <a th:href="@{/user/admin/edit/{id}(id=${person1.id})}">Edit</a>
-                                <form th:action="@{/user/admin/delete/{id}(id=${person1.id})}" method="post" class="button-form">
+                                <a th:href="@{/user/people/edit/{id}(id=${person1.id})}">Edit</a>
+                                <form th:action="@{/user/people/delete/{id}(id=${person1.id})}" method="post" class="button-form">
                                     <button type="submit">Delete</button>
                                 </form>
                             </div>

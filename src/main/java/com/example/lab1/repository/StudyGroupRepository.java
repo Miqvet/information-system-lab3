@@ -1,6 +1,6 @@
 package com.example.lab1.repository;
 
-import com.example.lab1.entity.StudyGroup;
+import com.example.lab1.domain.entity.StudyGroup;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;

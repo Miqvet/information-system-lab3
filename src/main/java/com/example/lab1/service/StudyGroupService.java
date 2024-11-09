@@ -1,17 +1,13 @@
 package com.example.lab1.service;
-import com.example.lab1.entity.Person;
-import com.example.lab1.entity.StudyGroup;
+import com.example.lab1.domain.entity.Person;
+import com.example.lab1.domain.entity.StudyGroup;
 import com.example.lab1.repository.StudyGroupRepository;
-import com.example.lab1.util.StudyGroupSpecifications;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.jpa.domain.Specification;
+import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 
 import org.springframework.dao.DataIntegrityViolationException;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
@@ -56,25 +52,73 @@ public class StudyGroupService {
         existingStudyGroup.setGroupAdmin(updatedStudyGroup.getGroupAdmin());
         studyGroupRepository.save(existingStudyGroup); // Сохраняем обновленный объект
     }
-    public Page<StudyGroup> findFilteredAndSorted(int page, int pageSize, String filterField, String filterValue, String sortBy){
-        // Проверяем, вложенное ли это поле (например, "person.name" или "location.name")
-        Sort sort;
-        if (sortBy.contains(".")) {
-            sort = Sort.by(Sort.Order.asc(sortBy));
-        } else {
-            sort = Sort.by(sortBy);
-        }
 
-        Pageable pageable = PageRequest.of(page - 1, pageSize, sort);
+    public Page<StudyGroup> findFilteredAndSorted(int page, int pageSize, String filterField, String filterValue, String sortBy) {
+        List<StudyGroup> allGroups = studyGroupRepository.findAll();
 
-        Specification<StudyGroup> spec = Specification.where(null);
-
+        // Фильтрация
+        List<StudyGroup> filteredGroups = allGroups;
         if (!filterField.isEmpty() && !filterValue.isEmpty()) {
-            spec = spec.and(StudyGroupSpecifications.filterByStringField(filterField, filterValue));
+            filteredGroups = allGroups.stream()
+                    .filter(group -> matchesFilter(group, filterField, filterValue))
+                    .collect(Collectors.toList());
         }
 
-        return studyGroupRepository.findAll(spec, pageable);
+        // Сортировка
+        filteredGroups.sort((g1, g2) -> compareByField(g1, g2, sortBy));
+
+        // Пагинация
+        int start = (page - 1) * pageSize;
+        int end = Math.min(start + pageSize, filteredGroups.size());
+
+        if (start >= filteredGroups.size()) {
+            return new PageImpl<>(Collections.emptyList(), PageRequest.of(page - 1, pageSize), filteredGroups.size());
+        }
+
+        List<StudyGroup> pageContent = filteredGroups.subList(start, end);
+        return new PageImpl<>(pageContent, PageRequest.of(page - 1, pageSize), filteredGroups.size());
     }
+
+
+    private boolean matchesFilter(StudyGroup group, String field, String value) {
+        try {
+            return switch (field) {
+                case "id" -> group.getId() == Integer.parseInt(value);
+                case "name" -> group.getName().equals(value);
+                case "studentsCount" -> group.getStudentsCount() == Integer.parseInt(value);
+                case "expelledStudents" -> group.getExpelledStudents() == Integer.parseInt(value);
+                case "transferredStudents" -> group.getTransferredStudents() == Integer.parseInt(value);
+                case "shouldBeExpelled" -> group.getShouldBeExpelled() == Integer.parseInt(value);
+                case "averageMark" -> group.getAverageMark() == Double.parseDouble(value);
+                case "groupAdmin.location.name" -> group.getGroupAdmin().getLocation().getName().equals(value);
+                case "groupAdmin.name" -> group.getGroupAdmin().getName().equals(value);
+                default -> false;
+            };
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    private int compareByField(StudyGroup g1, StudyGroup g2, String field) {
+        try {
+            return switch (field) {
+                case "id" -> Integer.compare(g1.getId(), g2.getId());
+                case "name" -> g1.getName().compareTo(g2.getName());
+                case "studentsCount" -> Integer.compare(g1.getStudentsCount(), g2.getStudentsCount());
+                case "expelledStudents" -> Integer.compare(g1.getExpelledStudents(), g2.getExpelledStudents());
+                case "transferredStudents" -> Integer.compare(g1.getTransferredStudents(), g2.getTransferredStudents());
+                case "shouldBeExpelled" -> Integer.compare(g1.getShouldBeExpelled(), g2.getShouldBeExpelled());
+                case "averageMark" -> Double.compare(g1.getAverageMark(), g2.getAverageMark());
+                case "groupAdmin.location.name" -> g1.getGroupAdmin().getLocation().getName()
+                        .compareTo(g2.getGroupAdmin().getLocation().getName());
+                case "groupAdmin.name" -> g1.getGroupAdmin().getName().compareTo(g2.getGroupAdmin().getName());
+                default -> 0;
+            };
+        } catch (Exception e) {
+            return 0;
+        }
+    }
+
 
     public long countByShouldBeExpelledLessThan(int threshold) {
         return studyGroupRepository.countByShouldBeExpelledLessThan(threshold);

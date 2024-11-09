@@ -1,5 +1,6 @@
-package com.example.lab1.entity.auth;
+package com.example.lab1.domain.entity.auth;
 
+import com.example.lab1.domain.entity.enums.RoleName;
 import lombok.Data;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Size;
@@ -62,5 +63,9 @@ public class User implements UserDetails {
     @Override
     public boolean isEnabled() {
         return true; 
+    }
+
+    public boolean isAdmin(){
+        return role.getName() == RoleName.ROLE_ADMIN;
     }
 }

@@ -1,6 +1,6 @@
 package com.example.lab1.service;
 
-import com.example.lab1.entity.Person;
+import com.example.lab1.domain.entity.Person;
 import com.example.lab1.repository.PersonRepository;
 import org.springframework.stereotype.Service;
 
@@ -25,9 +25,6 @@ public class PersonService {
         return personRepository.findById(id).orElse(null);
     }
 
-    public void save(Person person) {
-        personRepository.save(person);
-    }
 
     public void savePerson(Person person) throws IllegalArgumentException {
         if (personRepository.existsByPassportID(person.getPassportID())) {
@@ -40,6 +37,10 @@ public class PersonService {
     public void update(long id, Person person) {
         Person existingPerson = personRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Person with id " + id + " not found"));
+
+        if (personRepository.getPersonByPassportID(person.getPassportID()).getId() != id) {
+            throw new IllegalArgumentException("Человек с таким passportID уже существует");
+        }
         // Обновляем поля
         existingPerson.setName(person.getName());
         existingPerson.setEyeColor(person.getEyeColor());

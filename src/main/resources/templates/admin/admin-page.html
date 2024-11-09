@@ -7,32 +7,17 @@
     <link rel="stylesheet" type="text/css" th:href="@{/css/admin.css}">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700&display=swap" rel="stylesheet">
     <script th:src="@{/js/script.js}"></script>
+    <script th:src="@{/js/admin-forms.js}"></script>
 </head>
 <body>
-<div class="user-info" th:if="${username != null}">
-    <span th:text="${username}"></span>
-</div>
-<button class="menu-btn" 
-        onclick="toggleMenu()" 
-        aria-label="Открыть меню">&#9776;</button>
 
-<!-- Выдвижное меню -->
-<div class="side-menu" id="sideMenu">
-    <a href="#" th:href="@{/home}">Home</a>
-    <a href="#" th:href="@{/user}">User</a>
-    <a href="#" th:href="@{/user/visualization}">Visualization</a>
-    <a href="#" th:href="@{/login}">Login</a>
-    <a href="#" th:href="@{/register}">Register</a>
-    <button type="button" class="side-menu-button" onclick="document.getElementById('logoutForm').submit();">Logout</button>
-    <a href="#" th:href="@{/admin}" th:if="${#authorization.expression('hasRole(''ADMIN'')')}">Admin</a>
-    <a href="#" th:href="@{/admin/admin-page}" th:if="${#authorization.expression('hasRole(''ADMIN'')')}">Admin Page</a>
-    <form id="logoutForm" th:action="@{/logout}" method="post" style="display: none;"></form>
-</div>
+<div th:replace="fragments/common :: menu"></div>
+
 <h1>Admin Operations</h1>
 
 
 <div>
-    <form method="post" action="/admin/admin-page/less-than">
+    <form id="lessForm" method="post" action="/admin/admin-page/less-than">
         <label for="threshold1">Count where shouldBeExpelled less than:</label>
         <input type="number" id="threshold1" name="threshold1">
         <button type="submit">Submit</button>
@@ -41,7 +26,7 @@
     </form>
 
 
-    <form method="post" action="/admin/admin-page/greater-than">
+    <form id="greaterForm" method="post" action="/admin/admin-page/greater-than">
         <label for="threshold2">Count where shouldBeExpelled greater than:</label>
         <input type="number" id="threshold2" name="threshold2">
         <button type="submit">Submit</button>
@@ -50,7 +35,7 @@
     </form>
 
 
-    <form method="get" action="/admin/admin-page/unique-admins">
+    <form id="adminsForm" method="get" action="/admin/admin-page/unique-admins">
         <button type="submit">Get Unique Group Admins</button>
         <div class="scroll-table">
             <table>
@@ -78,14 +63,14 @@
     </form>
 
 
-    <form method="post" action="/admin/admin-page/expel-group">
+    <form id="expelForm" method="post" action="/admin/admin-page/expel-group">
         <label for="groupId">Expel all students from group:</label>
         <input type="number" id="groupId" name="groupId">
         <button type="submit">Expel Students</button>
         <span style="color: red" th:text="${message3}"></span>
     </form>
 
-    <form method="post" action="/admin/admin-page/transfer-students">
+    <form id="transferForm" method="post" action="/admin/admin-page/transfer-students">
         <label for="fromGroupId">Transfer students from group (ID):</label>
         <input type="number" id="fromGroupId" name="fromGroupId">
 

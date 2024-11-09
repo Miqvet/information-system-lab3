@@ -1,17 +1,18 @@
 package com.example.lab1.controller;
 
-import com.example.lab1.entity.StudyGroup;
-import com.example.lab1.entity.Person;
-import com.example.lab1.entity.auth.User;
-import com.example.lab1.entity.enums.Color;
-import com.example.lab1.entity.enums.Country;
-import com.example.lab1.entity.enums.FormOfEducation;
-import com.example.lab1.entity.enums.Semester;
+import com.example.lab1.domain.entity.StudyGroup;
+import com.example.lab1.domain.entity.Person;
+import com.example.lab1.domain.entity.auth.User;
+import com.example.lab1.domain.entity.enums.Color;
+import com.example.lab1.domain.entity.enums.Country;
+import com.example.lab1.domain.entity.enums.FormOfEducation;
+import com.example.lab1.domain.entity.enums.Semester;
 import com.example.lab1.service.PersonService;
 import com.example.lab1.service.StudyGroupService;
 import com.example.lab1.service.UserService;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
+import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -25,6 +26,7 @@ import java.security.Principal;
 import java.util.List;
 
 @Controller
+@AllArgsConstructor
 public class StudyGroupController {
     private static final String USERNAME_ATTR = "username";
     private static final String IS_ADMIN_ATTR = "isAdmin";
@@ -45,22 +47,11 @@ public class StudyGroupController {
     private static final String ADMIN_ID_MESSAGE = "Администратор с ID ";
 
 
-
     private final StudyGroupService studyGroupService;
     private final UserService userService;
     private final PersonService personService;
     private final WebSocketController webSocketController;
 
-    public StudyGroupController(
-            StudyGroupService studyGroupService, 
-            UserService userService, 
-            PersonService personService,
-            WebSocketController webSocketController) {
-        this.studyGroupService = studyGroupService;
-        this.userService = userService;
-        this.personService = personService;
-        this.webSocketController = webSocketController;
-    }
 
     @GetMapping("/user")
     public String userPage(HttpSession session, Model model,
@@ -104,7 +95,7 @@ public class StudyGroupController {
             model.addAttribute("filterValue", filterValue);
             model.addAttribute("sortBy", sortBy);
 
-            return "user/index";
+            return "user/main-page";
 
         } catch (NumberFormatException e) {
             model.addAttribute(ERROR_MESSAGE, 
@@ -123,65 +114,26 @@ public class StudyGroupController {
         model.addAttribute(STUDY_GROUP_ATTR, new StudyGroup());
         model.addAttribute(PERSON_ATTR, new Person());
         createFullModel(model);
-        return CREATE_EDIT_PAGE;
-    }
-
-    @GetMapping("/user/find")
-    public String findStudyGroup(@RequestParam("id") String id, Model model) {
-        try {
-            Long longId = Long.parseLong(id);
-            StudyGroup studyGroup = studyGroupService.getById(Math.toIntExact(longId));
-            model.addAttribute(STUDY_GROUP_ATTR, studyGroup);
-            return "user/info-details";
-        } catch (NumberFormatException e) {
-            model.addAttribute(ERROR_MESSAGE, "Неверный формат ID. Пожалуйста, введите числовое значение.");
-            return ERROR_WINDOW;
-        } catch (RuntimeException e) {
-            return ERROR_404;
-        }
+        return "user/create-edit";
     }
 
 
-
-
-
-    @PostMapping("/user/study-group/create")
+    @PostMapping("/user/group/create")
     public String createStudyGroup(@Valid @ModelAttribute(STUDY_GROUP_ATTR ) StudyGroup studyGroup,
-                                   BindingResult result, Principal principal, Model model) {
+                                   BindingResult result, Principal principal, Model model, HttpSession session) {
         if (result.hasErrors()) {
             createFullModel(model);
             model.addAttribute(PERSON_ATTR, new Person());
-            return CREATE_EDIT_PAGE;
+            return "user/create-edit";
         }
         User currentUser = userService.findByUsername(principal.getName());
         studyGroup.setCreatedBy(currentUser);
         studyGroupService.save(studyGroup);
         webSocketController.notifyClients("Create new studyGroup");
-        return REDIRECT_USER;
+        return "user/create-edit";
     }
 
-    @PostMapping("/user/admin/create")
-    public String createAdmin(@Valid @ModelAttribute(PERSON_ATTR) Person person,
-                              BindingResult result, Principal principal, Model model) {
-        model.addAttribute(STUDY_GROUP_ATTR , new StudyGroup());
-        if (result.hasErrors()) {
-            createFullModel(model);
-            return CREATE_EDIT_PAGE;
-        }
-        User currentUser = userService.findByUsername(principal.getName());
-        person.setCreatedBy(currentUser);
-        try {
-            personService.savePerson(person);
-        } catch (IllegalArgumentException e) {
-            model.addAttribute("customPassportError", e.getMessage());
-            createFullModel(model);
-            return CREATE_EDIT_PAGE;
-        }
-        return REDIRECT_USER;
-
-    }
-
-    @GetMapping("/user/study-group/edit/{id}")
+    @GetMapping("/user/group/edit/{id}")
     public String showStudyGroupEditForm(HttpSession session, 
                                        @PathVariable String id,
                                        Principal principal, 
@@ -225,7 +177,7 @@ public class StudyGroupController {
         }
     }
 
-    @PostMapping("/user/study-group/edit/{id}")
+    @PostMapping("/user/group/edit/{id}")
     public String updateStudyGroup(@PathVariable String id, 
                                  @Valid @ModelAttribute StudyGroup studyGroup, 
                                  BindingResult result,
@@ -277,90 +229,7 @@ public class StudyGroupController {
         }
     }
 
-
-    @GetMapping("/user/admin/edit/{id}")
-    public String showPersonEditForm(HttpSession session, 
-                                   @PathVariable String id,
-                                   Principal principal, 
-                                   Model model) {
-        try {
-            long personId = Long.parseLong(id);
-            Person person = personService.getById(personId);
-            
-            if (person == null) {
-                model.addAttribute(ERROR_MESSAGE, ADMIN_ID_MESSAGE + id + NOT_FOUND_MESSAGE);
-                return ERROR_WINDOW;
-            }
-
-            if (!person.isCanBeChanged() || 
-                (!principal.getName().equals(person.getCreatedBy().getUsername()) && !isAdmin(principal))) {
-                model.addAttribute(ERROR_MESSAGE, "У вас нет прав для редактирования этого администратора");
-                return ERROR_403;
-            }
-
-            model.addAttribute(USERNAME_ATTR, session.getAttribute(USERNAME_ATTR));
-            model.addAttribute(IS_ADMIN_ATTR, session.getAttribute(IS_ADMIN_ATTR));
-            model.addAttribute(PERSON_ATTR, person);
-            model.addAttribute(STUDY_GROUP_ATTR, new StudyGroup());
-            createFullModel(model);
-            return CREATE_EDIT_PAGE;
-
-        } catch (NumberFormatException e) {
-            model.addAttribute(ERROR_MESSAGE, INVALID_ID_FORMAT);
-            return ERROR_WINDOW;
-        } catch (Exception e) {
-            model.addAttribute(ERROR_MESSAGE, ERROR_REQUEST_MESSAGE + e.getMessage());
-            return ERROR_WINDOW;
-        }
-    }
-
-    @PostMapping("/user/admin/edit/{id}")
-    public String updatePerson(@PathVariable String id, 
-                               @Valid @ModelAttribute Person person, 
-                               BindingResult result,
-                               Principal principal, 
-                               Model model) {
-        try {
-            long personId = Long.parseLong(id);
-            model.addAttribute(STUDY_GROUP_ATTR, new StudyGroup());
-
-            if (result.hasErrors()) {
-                createFullModel(model);
-                return CREATE_EDIT_PAGE;
-            }
-
-            Person existingPerson = personService.getById(personId);
-            if (existingPerson == null) {
-                model.addAttribute(ERROR_MESSAGE, ADMIN_ID_MESSAGE + id + NOT_FOUND_MESSAGE);
-                return ERROR_WINDOW;
-            }
-
-            if (!existingPerson.isCanBeChanged() || 
-                (!principal.getName().equals(existingPerson.getCreatedBy().getUsername()) && !isAdmin(principal))) {
-                model.addAttribute(ERROR_MESSAGE, "У вас нет прав для редактирования этого администратора");
-                return ERROR_403;
-            }
-
-            try {
-                personService.update(personId, person);
-                webSocketController.notifyClients(DELETE_MESSAGE);
-                return REDIRECT_USER;
-            } catch (IllegalArgumentException e) {
-                model.addAttribute("customPassportError", e.getMessage());
-                createFullModel(model);
-                return CREATE_EDIT_PAGE;
-            }
-
-        } catch (NumberFormatException e) {
-            model.addAttribute(ERROR_MESSAGE, "Неверный формат ID администратора");
-            return ERROR_WINDOW;
-        } catch (Exception e) {
-            model.addAttribute(ERROR_MESSAGE, ERROR_REQUEST_MESSAGE + e.getMessage());
-            return ERROR_WINDOW;
-        }
-    }
-
-    @PostMapping("/user/study-group/delete/{id}")
+    @PostMapping("/user/group/delete/{id}")
     public String deleteStudyGroup(@PathVariable String id, 
                                  Principal principal, 
                                  Model model) {
@@ -390,44 +259,21 @@ public class StudyGroupController {
             return ERROR_WINDOW;
         }
     }
-    @GetMapping("/user/study-group/delete/{id}")
-    public String deleteEndpointGroup(@PathVariable String id) {
-        return ERROR_404;
-    }
-    @GetMapping("/user/adminp/delete/{id}")
-    public String deleteEndpointAdmin(@PathVariable String id) {
-        return ERROR_404;
-    }
 
-    @PostMapping("/user/admin/delete/{id}")
-    public String deletePerson(@PathVariable String id, 
-                             Principal principal, 
-                             Model model) {
+
+
+    @GetMapping("/user/find")
+    public String findStudyGroup(@RequestParam("id") String id, Model model) {
         try {
-            long personId = Long.parseLong(id);
-            Person person = personService.getById(personId);
-            
-            if (person == null) {
-                model.addAttribute(ERROR_MESSAGE, ADMIN_ID_MESSAGE + id + NOT_FOUND_MESSAGE);
-                return ERROR_WINDOW;
-            }
-
-            if (!principal.getName().equals(person.getCreatedBy().getUsername()) && !isAdmin(principal)) {
-                model.addAttribute(ERROR_MESSAGE, "У вас нет прав для удаления этого администратора");
-                return ERROR_403;
-            }
-
-            personService.deleteById(personId);
-            webSocketController.notifyClients(DELETE_MESSAGE);
-            return REDIRECT_USER;
-
-
+            Long longId = Long.parseLong(id);
+            StudyGroup studyGroup = studyGroupService.getById(Math.toIntExact(longId));
+            model.addAttribute(STUDY_GROUP_ATTR, studyGroup);
+            return "user/info-details";
         } catch (NumberFormatException e) {
-            model.addAttribute(ERROR_MESSAGE, "Неверный формат ID администратора");
+            model.addAttribute(ERROR_MESSAGE, "Неверный формат ID. Пожалуйста, введите числовое значение.");
             return ERROR_WINDOW;
-        } catch (Exception e) {
-            model.addAttribute(ERROR_MESSAGE, "Произошла ошибка при удалении: " + e.getMessage());
-            return ERROR_WINDOW;
+        } catch (RuntimeException e) {
+            return ERROR_404;
         }
     }
 

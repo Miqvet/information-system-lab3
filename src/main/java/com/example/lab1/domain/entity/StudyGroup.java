@@ -1,8 +1,8 @@
-package com.example.lab1.entity;
+package com.example.lab1.domain.entity;
 
-import com.example.lab1.entity.auth.User;
-import com.example.lab1.entity.enums.FormOfEducation;
-import com.example.lab1.entity.enums.Semester;
+import com.example.lab1.domain.entity.auth.User;
+import com.example.lab1.domain.entity.enums.FormOfEducation;
+import com.example.lab1.domain.entity.enums.Semester;
 import jakarta.persistence.*;
 import jakarta.validation.*;
 import jakarta.validation.constraints.*;

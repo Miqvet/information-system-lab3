@@ -1,7 +1,7 @@
 package com.example.lab1.repository.auth;
 
-import com.example.lab1.entity.auth.User;
-import com.example.lab1.entity.enums.RoleName;
+import com.example.lab1.domain.entity.auth.User;
+import com.example.lab1.domain.entity.enums.RoleName;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;

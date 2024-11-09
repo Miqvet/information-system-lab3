@@ -1,23 +1,22 @@
 package com.example.lab1.controller;
 
-import com.example.lab1.entity.Person;
-import com.example.lab1.entity.auth.Role;
-import com.example.lab1.entity.auth.User;
-import com.example.lab1.entity.enums.RoleName;
+import com.example.lab1.domain.entity.Person;
+import com.example.lab1.domain.entity.auth.Role;
+import com.example.lab1.domain.entity.auth.User;
+import com.example.lab1.domain.entity.enums.RoleName;
 import com.example.lab1.repository.auth.RoleRepository;
 import com.example.lab1.repository.auth.UserRepository;
 import com.example.lab1.service.StudyGroupService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.NoSuchElementException;
 
 @Controller
+@RequestMapping("/admin")
 public class AdminController {
 
     private static final String ADMIN_PAGE_VIEW = "admin/admin-page";
@@ -38,7 +37,7 @@ public class AdminController {
         this.userRepository = userRepository;
     }
 
-    @GetMapping("/admin")
+    @GetMapping("/approves")
     public String adminPage(HttpSession session, Model model) {
         model.addAttribute(USERNAME_ATTR, session.getAttribute(USERNAME_ATTR));
         model.addAttribute(IS_ADMIN_ATTR, session.getAttribute(IS_ADMIN_ATTR));
@@ -47,7 +46,7 @@ public class AdminController {
     }
 
 
-    @PostMapping("/admin")
+    @PostMapping("/approves")
     public String approveAdminRequest(@RequestParam("userId") Long userId) {
 
         User user = userRepository.findById(userId).orElseThrow(() -> new IllegalArgumentException("Invalid user ID"));
@@ -57,19 +56,19 @@ public class AdminController {
         user.setRole(userRole);
         userRepository.save(user);
 
-        return "redirect:/admin";
+        return "admin/index";
     }
 
 
 
-    @GetMapping("/admin/admin-page")
+    @GetMapping("/admin-page")
     public String adminPageRequest(HttpSession session, Model model) {
         model.addAttribute(USERNAME_ATTR, session.getAttribute(USERNAME_ATTR));
         model.addAttribute(IS_ADMIN_ATTR, session.getAttribute(IS_ADMIN_ATTR));
         return ADMIN_PAGE_VIEW;
     }
 
-    @PostMapping("/admin/admin-page/less-than")
+    @PostMapping("/admin-page/less-than")
     public String countShouldBeExpelledLessThan(@RequestParam(value = "threshold1", required = false) String threshold, Model model, HttpSession session) {
         model.addAttribute(USERNAME_ATTR, session.getAttribute(USERNAME_ATTR));
         model.addAttribute(IS_ADMIN_ATTR, session.getAttribute(IS_ADMIN_ATTR));
@@ -90,7 +89,7 @@ public class AdminController {
         return ADMIN_PAGE_VIEW;
     }
 
-    @PostMapping("/admin/admin-page/greater-than")
+    @PostMapping("/admin-page/greater-than")
     public String countShouldBeExpelledGreaterThan( @RequestParam(value = "threshold2", required = false) String threshold, Model model, HttpSession session) {
         model.addAttribute(USERNAME_ATTR, session.getAttribute(USERNAME_ATTR));
         model.addAttribute(IS_ADMIN_ATTR, session.getAttribute(IS_ADMIN_ATTR));
@@ -112,7 +111,7 @@ public class AdminController {
     }
 
 
-    @GetMapping("/admin/admin-page/unique-admins")
+    @GetMapping("/admin-page/unique-admins")
     public String getUniqueGroupAdmins(HttpSession session,Model model) {
         model.addAttribute(USERNAME_ATTR, session.getAttribute(USERNAME_ATTR));
         model.addAttribute(IS_ADMIN_ATTR, session.getAttribute(IS_ADMIN_ATTR));
@@ -122,7 +121,7 @@ public class AdminController {
     }
 
 
-    @PostMapping("/admin/admin-page/expel-group")
+    @PostMapping("/admin-page/expel-group")
     public String expelGroupStudents(@RequestParam(value = "groupId", required = false) String groupId, Model model, HttpSession session) {
         model.addAttribute(USERNAME_ATTR, session.getAttribute(USERNAME_ATTR));
         model.addAttribute(IS_ADMIN_ATTR, session.getAttribute(IS_ADMIN_ATTR));
@@ -144,10 +143,10 @@ public class AdminController {
             return ADMIN_PAGE_VIEW;
         }
 
-        return "redirect:/admin/admin-page";
+        return ADMIN_PAGE_VIEW;
     }
 
-    @PostMapping("/admin/admin-page/transfer-students")
+    @PostMapping("/admin-page/transfer-students")
     public String transferStudents(@RequestParam(value = "fromGroupId", required = false) String fromGroupId,
                                    @RequestParam(value = "toGroupId", required = false) String toGroupId,
                                    Model model, HttpSession session) {
@@ -183,6 +182,6 @@ public class AdminController {
             model.addAttribute(MESSAGE4_ATTR, e.getMessage());
             return ADMIN_PAGE_VIEW;
         }
-        return "redirect:/admin/admin-page";
+        return ADMIN_PAGE_VIEW;
     }
 }

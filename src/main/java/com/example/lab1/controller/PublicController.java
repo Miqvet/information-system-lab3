@@ -1,23 +1,25 @@
 package com.example.lab1.controller;
 
-import com.example.lab1.entity.auth.Role;
-import com.example.lab1.entity.auth.User;
-import com.example.lab1.entity.enums.RoleName;
+import com.example.lab1.domain.dto.SignRequest;
+import com.example.lab1.domain.entity.auth.Role;
+import com.example.lab1.domain.entity.auth.User;
+import com.example.lab1.domain.entity.enums.RoleName;
 import com.example.lab1.repository.auth.RoleRepository;
 import com.example.lab1.repository.auth.UserRepository;
+import com.example.lab1.service.AuthenticationService;
 import com.example.lab1.service.UserService;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
+import lombok.AllArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.*;
 
+@AllArgsConstructor
 @Controller
 public class PublicController {
     private static final String REGISTER_PAGE = "register";
@@ -30,17 +32,7 @@ public class PublicController {
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
-
-    public PublicController(
-            UserService userService,
-            UserRepository userRepository,
-            RoleRepository roleRepository,
-            PasswordEncoder passwordEncoder) {
-        this.userService = userService;
-        this.userRepository = userRepository;
-        this.roleRepository = roleRepository;
-        this.passwordEncoder = passwordEncoder;
-    }
+    private final AuthenticationService authenticationService;
 
     @GetMapping("/home")
     public String home(HttpSession session, Model model) {
@@ -49,8 +41,9 @@ public class PublicController {
                 .anyMatch(role -> role.getAuthority().equals(ROLE_ADMIN));
         model.addAttribute(USERNAME_ATTR, session.getAttribute(USERNAME_ATTR));
         model.addAttribute(IS_ADMIN_ATTR, isAdmin);
-        return "home"; 
+        return "home";
     }
+
 
     @GetMapping("/login")
     public String login(HttpSession session, Model model) {
@@ -68,7 +61,7 @@ public class PublicController {
     }
 
     @PostMapping("/register")
-    public String registerUser(@Valid @ModelAttribute("user") User user, BindingResult result, Model model) {
+    public String signUp(@ModelAttribute @Valid User user, BindingResult result, Model model) {
         if (userService.existsByUsername(user.getUsername())) {
             result.rejectValue(USERNAME_ATTR, null, "Пользователь с таким логином уже существует");
             return REGISTER_PAGE;
