@@ -3,17 +3,15 @@ package com.example.lab1.service;
 
 import com.example.lab1.domain.entity.auth.User;
 import com.example.lab1.repository.auth.UserRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.context.SecurityContextHolder;
+import lombok.AllArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 @Service
+@AllArgsConstructor
 public class UserService implements UserDetailsService {
-
-    @Autowired
     private UserRepository userRepository;
 
     @Override
@@ -21,11 +19,6 @@ public class UserService implements UserDetailsService {
         return userRepository.findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
     }
-    public User getCurrentUser() {
-        var username = SecurityContextHolder.getContext().getAuthentication().getName();
-        return getByUsername(username);
-    }
-
     public boolean existsByUsername(String username) {
         return userRepository.existsByUsername(username);
     }

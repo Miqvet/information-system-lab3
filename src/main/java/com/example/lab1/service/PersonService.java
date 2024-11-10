@@ -5,6 +5,7 @@ import com.example.lab1.repository.PersonRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 
 @Service
 public class PersonService {
@@ -21,8 +22,8 @@ public class PersonService {
         return personRepository.findAll();
     }
 
-    public Person getById(Long id) {
-        return personRepository.findById(id).orElse(null);
+    public Person getById(Long id) throws NoSuchElementException{
+        return personRepository.findById(id).orElseThrow(()->new NoSuchElementException("Person with id " + id + " not found"));
     }
 
 
@@ -33,15 +34,13 @@ public class PersonService {
         personRepository.save(person);
     }
 
-    // Метод для обновления объекта
     public void update(long id, Person person) {
         Person existingPerson = personRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Person with id " + id + " not found"));
+                .orElseThrow(() -> new NoSuchElementException("Person with id " + id + " not found"));
 
         if (personRepository.getPersonByPassportID(person.getPassportID()).getId() != id) {
             throw new IllegalArgumentException("Человек с таким passportID уже существует");
         }
-        // Обновляем поля
         existingPerson.setName(person.getName());
         existingPerson.setEyeColor(person.getEyeColor());
         existingPerson.setHairColor(person.getHairColor());

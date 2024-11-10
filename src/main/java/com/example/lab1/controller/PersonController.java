@@ -8,11 +8,14 @@ import com.example.lab1.domain.entity.enums.Country;
 import com.example.lab1.domain.entity.enums.FormOfEducation;
 import com.example.lab1.domain.entity.enums.Semester;
 import com.example.lab1.service.PersonService;
-import com.example.lab1.service.StudyGroupService;
 import com.example.lab1.service.UserService;
+import static com.example.lab1.common.AppConstants.*;
+
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
+
 import lombok.AllArgsConstructor;
+
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
@@ -21,36 +24,15 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
+import java.util.NoSuchElementException;
+
+
 
 @Controller
 @AllArgsConstructor
 @RequestMapping("/user/people")
 public class PersonController {
-    private static final String USERNAME_ATTR = "username";
-    private static final String IS_ADMIN_ATTR = "isAdmin";
-    private static final String STUDY_GROUP_ATTR = "studyGroup";
 
-    private static final String ROLE_ADMIN = "ROLE_ADMIN";
-    private static final String PERSON_ATTR = "person";
-
-
-    private static final String CREATE_EDIT_PAGE = "user/create-edit";
-    private static final String ERROR_403 = "error/403";
-    private static final String ERROR_404 = "error/404";
-    private static final String ERROR_WINDOW = "error/bad-request";
-
-    private static final String REDIRECT_USER = "redirect:/user";
-    private static final String REDIRECT_CREATE = "redirect:/user/create";
-
-    private static final String DELETE_MESSAGE = "StudyGroup deleted with ID: ";
-    private static final String ERROR_MESSAGE = "errorMessage";
-    private static final String ERROR_REQUEST_MESSAGE = "Произошла ошибка при обработке запроса: ";
-    private static final String GROUP_ID_MESSAGE = "Группа с ID ";
-    private static final String NOT_FOUND_MESSAGE = " не найдена";
-    private static final String INVALID_ID_FORMAT = "Неверный формат ID";
-    private static final String ADMIN_ID_MESSAGE = "Администратор с ID ";
-
-    private final StudyGroupService studyGroupService;
     private final UserService userService;
     private final PersonService personService;
     private final WebSocketController webSocketController;
@@ -74,6 +56,7 @@ public class PersonController {
             return CREATE_EDIT_PAGE;
         }
         User currentUser = userService.findByUsername(principal.getName());
+
         person.setCreatedBy(currentUser);
         try {
             personService.savePerson(person);
@@ -82,6 +65,7 @@ public class PersonController {
             createFullModel(model);
             return CREATE_EDIT_PAGE;
         }
+        webSocketController.notifyClients(CREATE_MESSAGE);
         return REDIRECT_USER;
 
     }
@@ -94,11 +78,6 @@ public class PersonController {
         try {
             long personId = Long.parseLong(id);
             Person person = personService.getById(personId);
-
-            if (person == null) {
-                model.addAttribute(ERROR_MESSAGE, ADMIN_ID_MESSAGE + id + NOT_FOUND_MESSAGE);
-                return ERROR_WINDOW;
-            }
 
             if (!person.isCanBeChanged() ||
                     (!principal.getName().equals(person.getCreatedBy().getUsername()) && !isAdmin(principal))) {
@@ -115,7 +94,7 @@ public class PersonController {
 
         } catch (NumberFormatException e) {
             model.addAttribute(ERROR_MESSAGE, INVALID_ID_FORMAT);
-            return ERROR_WINDOW;
+            return ERROR_404;
         } catch (Exception e) {
             model.addAttribute(ERROR_MESSAGE, ERROR_REQUEST_MESSAGE + e.getMessage());
             return ERROR_WINDOW;
@@ -138,10 +117,6 @@ public class PersonController {
             }
 
             Person existingPerson = personService.getById(personId);
-            if (existingPerson == null) {
-                model.addAttribute(ERROR_MESSAGE, ADMIN_ID_MESSAGE + id + NOT_FOUND_MESSAGE);
-                return ERROR_WINDOW;
-            }
 
             if (!existingPerson.isCanBeChanged() ||
                     (!principal.getName().equals(existingPerson.getCreatedBy().getUsername()) && !isAdmin(principal))) {
@@ -149,21 +124,46 @@ public class PersonController {
                 return ERROR_403;
             }
 
-            try {
-                personService.update(personId, person);
-                webSocketController.notifyClients(DELETE_MESSAGE);
-                return REDIRECT_USER;
-            } catch (IllegalArgumentException e) {
-                model.addAttribute("customPassportError", e.getMessage());
-                createFullModel(model);
-                return CREATE_EDIT_PAGE;
-            }
 
+            personService.update(personId, person);
+            webSocketController.notifyClients(EDIT_MESSAGE + personId);
+            return REDIRECT_USER;
         } catch (NumberFormatException e) {
             model.addAttribute(ERROR_MESSAGE, "Неверный формат ID администратора");
             return ERROR_WINDOW;
+        }catch (NoSuchElementException e){
+            return ERROR_404;
+        }catch (IllegalArgumentException e) {
+            model.addAttribute("customPassportError", e.getMessage());
+            createFullModel(model);
+            return CREATE_EDIT_PAGE;
         } catch (Exception e) {
             model.addAttribute(ERROR_MESSAGE, ERROR_REQUEST_MESSAGE + e.getMessage());
+            return ERROR_WINDOW;
+        }
+    }
+
+    @GetMapping("/delete/{id}")
+    public String getDeletePerson(@PathVariable String id,
+                               Principal principal,
+                               Model model) {
+        try {
+            long personId = Long.parseLong(id);
+            Person person = personService.getById(personId);
+
+            if (!principal.getName().equals(person.getCreatedBy().getUsername()) && !isAdmin(principal)) {
+                model.addAttribute(ERROR_MESSAGE, "У вас нет прав для удаления этого администратора");
+                return ERROR_403;
+            }
+            model.addAttribute(ERROR_MESSAGE, "Используйте метод Post для данной операции");
+            return ERROR_WINDOW;
+        } catch (NumberFormatException e) {
+            model.addAttribute(ERROR_MESSAGE, "Неверный формат ID администратора");
+            return ERROR_WINDOW;
+        }catch (NoSuchElementException e){
+            return ERROR_404;
+        } catch (Exception e) {
+            model.addAttribute(ERROR_MESSAGE, "Произошла ошибка при удалении: " + e.getMessage());
             return ERROR_WINDOW;
         }
     }
@@ -176,24 +176,21 @@ public class PersonController {
             long personId = Long.parseLong(id);
             Person person = personService.getById(personId);
 
-            if (person == null) {
-                model.addAttribute(ERROR_MESSAGE, ADMIN_ID_MESSAGE + id + NOT_FOUND_MESSAGE);
-                return ERROR_WINDOW;
-            }
-
             if (!principal.getName().equals(person.getCreatedBy().getUsername()) && !isAdmin(principal)) {
                 model.addAttribute(ERROR_MESSAGE, "У вас нет прав для удаления этого администратора");
                 return ERROR_403;
             }
 
             personService.deleteById(personId);
-            webSocketController.notifyClients(DELETE_MESSAGE);
+            webSocketController.notifyClients(DELETE_MESSAGE + personId);
             return REDIRECT_USER;
 
 
         } catch (NumberFormatException e) {
             model.addAttribute(ERROR_MESSAGE, "Неверный формат ID администратора");
             return ERROR_WINDOW;
+        }catch (NoSuchElementException e){
+            return ERROR_404;
         } catch (Exception e) {
             model.addAttribute(ERROR_MESSAGE, "Произошла ошибка при удалении: " + e.getMessage());
             return ERROR_WINDOW;

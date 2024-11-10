@@ -13,9 +13,10 @@
             border: 1px solid black;
         }
     </style>
+    <th:block th:insert="~{fragments/common :: head('StudyGroup Visualization')}"></th:block>
 </head>
 <body>
-    <div th:replace="fragments/common :: menu"></div>
+<div th:replace="~{fragments/common :: menu}"></div>
 <h1>StudyGroup Visualization</h1>
 
 <!-- Контейнер для визуализации -->
@@ -183,6 +184,14 @@
     }
 
     function showUpdate(message) {
+        Toastify({
+            text: message,
+            duration: 3000,
+            gravity: "top",
+            position: "right",
+            backgroundColor: "linear-gradient(to right, #00b09b, #96c93d)",
+            onClick: function(){}
+        }).showToast();
         // AJAX-запрос для загрузки данных StudyGroup
         fetch('/user/study-groups')
             .then(response => response.json())
@@ -217,7 +226,18 @@
                     drawStudyGroup(x, y, size, userColors[group.createdBy.username]);
                 });
             })
-            .catch(error => console.error('Ошибка загрузки данных:', error));
+            .catch(error =>{
+                Toastify({
+                    text: "Ошибка при загрузке данных",
+                    duration: 3000,
+                    gravity: "top",
+                    position: "right",
+                    backgroundColor: "linear-gradient(to right, #ff5f6d, #ffc371)",
+                    onClick: function(){}
+                }).showToast();
+                console.error('Ошибка при загрузке данных:', error)
+            });
+
     }
 
     window.onload = function () {

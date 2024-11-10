@@ -7,7 +7,13 @@ import com.example.lab1.domain.entity.enums.RoleName;
 import com.example.lab1.repository.auth.RoleRepository;
 import com.example.lab1.repository.auth.UserRepository;
 import com.example.lab1.service.StudyGroupService;
+
+import static com.example.lab1.common.AppConstants.*;
+
 import jakarta.servlet.http.HttpSession;
+
+import lombok.AllArgsConstructor;
+
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -15,27 +21,15 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.NoSuchElementException;
 
+@AllArgsConstructor
 @Controller
 @RequestMapping("/admin")
 public class AdminController {
-
-    private static final String ADMIN_PAGE_VIEW = "admin/admin-page";
-    private static final String USERNAME_ATTR = "username";
-    private static final String IS_ADMIN_ATTR = "isAdmin";
-    private static final String MESSAGE3_ATTR = "message3";
-    private static final String MESSAGE4_ATTR = "message4";
-    private static final String THRESHOLD_ERROR_MSG = "Threshold must be a valid number";
-
 
     private final RoleRepository roleRepository;
     private final UserRepository userRepository;
     private final StudyGroupService studyGroupService;
 
-    public AdminController(StudyGroupService studyGroupService, RoleRepository roleRepository, UserRepository userRepository) {
-        this.studyGroupService = studyGroupService;
-        this.roleRepository = roleRepository;
-        this.userRepository = userRepository;
-    }
 
     @GetMapping("/approves")
     public String adminPage(HttpSession session, Model model) {

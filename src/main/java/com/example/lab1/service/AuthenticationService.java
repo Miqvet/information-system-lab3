@@ -4,7 +4,6 @@ import com.example.lab1.domain.dto.JwtAuthenticationResponse;
 import com.example.lab1.domain.dto.SignRequest;
 import com.example.lab1.domain.entity.auth.Role;
 import com.example.lab1.domain.entity.auth.User;
-import com.example.lab1.domain.entity.enums.RoleName;
 import com.example.lab1.repository.auth.RoleRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -24,7 +23,6 @@ public class AuthenticationService {
     private final RoleRepository roleRepository;
 
     public JwtAuthenticationResponse signUp(SignRequest request) {
-
         var user = new User();
         Role userRole = roleRepository.findByName(ROLE_USER).orElseThrow(() -> new RuntimeException("Role not found"));
         user.setUsername(request.getUsername());

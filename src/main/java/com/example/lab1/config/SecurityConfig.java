@@ -20,9 +20,6 @@ import org.springframework.web.cors.CorsConfiguration;
 
 import java.util.List;
 
-import static org.springframework.security.config.Customizer.withDefaults;
-import static org.springframework.security.config.http.SessionCreationPolicy.STATELESS;
-
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
@@ -52,9 +49,9 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers("/api/**","/css/**","/images/**", "/js/**","/home","/login","/register", "/sign-in", "sign-up").permitAll()
+                        .requestMatchers("/api/sign-up", "/api/sign-in","/css/**","/images/**", "/js/**", "/error/**","/home","/login","/register", "/sign-in", "sign-up").permitAll()
                         .requestMatchers("/admin/**").hasRole("ADMIN")            
-                        .requestMatchers("/user/**").authenticated()
+                        .requestMatchers("/user/**", "/api/groups").authenticated()
                         .anyRequest().authenticated()
                 )
                 .formLogin(form -> form
@@ -86,7 +83,6 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .authenticationProvider(authenticationProvider())
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
-        ;
         return http.build();
     }
 }

@@ -3,22 +3,21 @@ package com.example.lab1.service;
 import com.example.lab1.domain.entity.auth.User;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
-import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 
-import java.security.Key;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
 
+import javax.crypto.SecretKey;
+
 @Service
 public class JwtService {
-    private String jwtSecret = "3q2+796tvu8x9+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v";
+    private final String jwtSecret = "3q2+796tvu8x9+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v8+7v";
     public String extractUserName(String token) {
         return extractClaim(token, Claims::getSubject);
     }
@@ -44,11 +43,11 @@ public class JwtService {
 
     private String createToken(Map<String, Object> claims, String subject) {
         return Jwts.builder()
-                .setClaims(claims)
-                .setSubject(subject)
-                .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + 1000000 * 60 * 24))
-                .signWith(getSigningKey(), SignatureAlgorithm.HS256)
+                .claims(claims)
+                .subject(subject)
+                .issuedAt(new Date())
+                .expiration(new Date(System.currentTimeMillis() + 1000000 * 60 * 24))
+                .signWith(getSigningKey())
                 .compact();
     }
 
@@ -62,13 +61,13 @@ public class JwtService {
 
     private Claims extractAllClaims(String token) {
         return Jwts.parser()
-                .setSigningKey(getSigningKey())
+                .verifyWith(getSigningKey())
                 .build()
-                .parseClaimsJws(token)
-                .getBody();
+                .parseSignedClaims(token)
+                .getPayload();
     }
 
-    private Key getSigningKey() {
+    private SecretKey getSigningKey() {
         return Keys.hmacShaKeyFor(jwtSecret.getBytes());
     }
 }

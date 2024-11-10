@@ -1,16 +1,15 @@
 package com.example.lab1.controller;
 
-import com.example.lab1.domain.dto.SignRequest;
 import com.example.lab1.domain.entity.auth.Role;
 import com.example.lab1.domain.entity.auth.User;
 import com.example.lab1.domain.entity.enums.RoleName;
 import com.example.lab1.repository.auth.RoleRepository;
 import com.example.lab1.repository.auth.UserRepository;
-import com.example.lab1.service.AuthenticationService;
 import com.example.lab1.service.UserService;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -32,7 +31,6 @@ public class PublicController {
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
-    private final AuthenticationService authenticationService;
 
     @GetMapping("/home")
     public String home(HttpSession session, Model model) {
@@ -61,9 +59,9 @@ public class PublicController {
     }
 
     @PostMapping("/register")
-    public String signUp(@ModelAttribute @Valid User user, BindingResult result, Model model) {
+    public String signUp(@ModelAttribute @Valid User user, BindingResult result) {
         if (userService.existsByUsername(user.getUsername())) {
-            result.rejectValue(USERNAME_ATTR, null, "Пользователь с таким логином уже существует");
+            result.rejectValue(USERNAME_ATTR, String.valueOf(HttpStatusCode.valueOf(200)), "Пользователь с таким логином уже существует");
             return REGISTER_PAGE;
         }
         if (result.hasErrors()) {

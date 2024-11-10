@@ -8,11 +8,10 @@
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700&display=swap" rel="stylesheet">
     <script th:src="@{/js/script.js}"></script>
     <script th:src="@{/js/admin-forms.js}"></script>
+    <th:block th:insert="~{fragments/common :: head('StudyGroup Visualization')}"></th:block>
 </head>
 <body>
-
-<div th:replace="fragments/common :: menu"></div>
-
+<div th:replace="~{fragments/common :: menu}"></div>
 <h1>Admin Operations</h1>
 
 

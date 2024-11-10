@@ -7,9 +7,12 @@
     <link rel="stylesheet" type="text/css" th:href="@{/css/user.css}">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700&display=swap" rel="stylesheet">
     <script th:src="@{/js/script.js}"></script>
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+    <th:block th:insert="~{fragments/common :: head('StudyGroup Visualization')}"></th:block>
 </head>
 <body>
-<div th:replace="fragments/common :: menu"></div>
+<div th:replace="~{fragments/common :: menu}"></div>
 <h1 style="text-align: center">Study Groups</h1>
 
 <div class="form-container">
@@ -144,26 +147,37 @@
     }
 
     function showUpdate(message) {
-        // Отправляем GET запрос на /user для получения обновлённой страницы
+        Toastify({
+            text: message,
+            duration: 3000,
+            gravity: "top",
+            position: "right",
+            backgroundColor: "linear-gradient(to right, #00b09b, #96c93d)",
+            onClick: function(){} 
+        }).showToast();
+
         fetch(window.location.href)
-            .then(response => response.text()) // Получаем текст HTML
+            .then(response => response.text())
             .then(html => {
-                // Создаём временный DOM элемент для работы с полученной HTML-страницей
                 var parser = new DOMParser();
                 var doc = parser.parseFromString(html, 'text/html');
-
-                // Извлекаем новую таблицу из полученной HTML-страницы
                 var newTable = doc.querySelector('.table-container');
-
-                // Находим текущую таблицу на странице
                 var oldTable = document.querySelector('.table-container');
-
-                // Заменяем старую таблицу на новую
                 if (oldTable && newTable) {
                     oldTable.innerHTML = newTable.innerHTML;
                 }
             })
-            .catch(error => console.error('Ошибка при загрузке обновлённой страницы:', error));
+            .catch(error => {
+                Toastify({
+                    text: "Ошибка при обновлении данных",
+                    duration: 3000,
+                    gravity: "top",
+                    position: "right",
+                    backgroundColor: "linear-gradient(to right, #ff5f6d, #ffc371)",
+                    onClick: function(){}
+                }).showToast();
+                console.error('Ошибка при загрузке обновлённой страницы:', error)
+            });
     }
 
     window.onload = function () {

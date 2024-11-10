@@ -2,10 +2,10 @@
 <html xmlns:th="http://www.thymeleaf.org", lang="en">
 <head>
     <title>Ошибка метода</title>
+    <th:block th:insert="~{fragments/common :: head('StudyGroup Visualization')}"></th:block>
 </head>
-
-<div th:replace="fragments/common :: menu"></div>
-
+<body>
+<div th:replace="~{fragments/common :: menu}"></div>
 <body>
     <h1>405 - Метод не поддерживается</h1>
     <p th:text="${message}"></p>

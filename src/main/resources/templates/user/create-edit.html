@@ -9,10 +9,10 @@
 
     <script th:src="@{/js/script.js}"></script>
     <script th:src="@{/js/form-persistence.js}"></script>
+    <th:block th:insert="~{fragments/common :: head('StudyGroup Visualization')}"></th:block>
 </head>
 <body>
-
-    <div th:replace="fragments/common :: menu"></div>
+<div th:replace="~{fragments/common :: menu}"></div>
     
 <h1 th:text="'Create/Edit page'"/>
 <div class="container">
@@ -232,4 +232,33 @@
 </div>
 
 </body>
+<script type="text/javascript">
+    var stompClient = null;
+
+    function connect() {
+        var socket = new SockJS('/ws');
+        stompClient = Stomp.over(socket);
+        stompClient.connect({}, function (frame) {
+            console.log('Connected: ' + frame);
+            stompClient.subscribe('/topic/updates', function (message) {
+                showUpdate(message.body);
+            });
+        });
+    }
+    function showUpdate(message) {
+        // Показываем уведомление
+        Toastify({
+            text: message,
+            duration: 3000,
+            gravity: "top",
+            position: "right",
+            backgroundColor: "linear-gradient(to right, #00b09b, #96c93d)",
+            onClick: function(){}
+        }).showToast();
+    }
+
+    window.onload = function () {
+        connect();
+    };
+</script>
 </html>
