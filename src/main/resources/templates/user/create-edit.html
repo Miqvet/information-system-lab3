@@ -96,8 +96,8 @@
             </div>
 
             <div>
-                <label for="passportID1">ID</label>
-                <input type="text" id="passportID1" th:field="*{groupAdmin}" />
+                <label for="adminID">ID</label>
+                <input type="text" id="adminID" th:field="*{groupAdmin}" />
                 <div th:if="${#fields.hasErrors('groupAdmin')}" th:errors="*{groupAdmin}" class="form-errors"></div>
                 <p th:if="${customPassportError != null}" th:text="${customPassportError}" class="form-errors"></p>
             </div>

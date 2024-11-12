@@ -1,8 +1,11 @@
 document.addEventListener('DOMContentLoaded', function() {
     const forms = document.querySelectorAll('.main-form');
 
-    forms.forEach((form, formIndex) => {
-        const formKey = `form_${formIndex}_${window.location.pathname}`;
+    forms.forEach((form) => {
+        // Определяем тип формы (create или edit) на основе URL
+        const isEditForm = form.action.includes('/edit/');
+        const formType = form.action.includes('/people/') ? 'person' : 'group';
+        const formKey = `form_${formType}_${isEditForm ? 'edit' : 'create'}`;
 
         // Восстанавливаем значения
         restoreFormValues(form, formKey);
@@ -138,10 +141,12 @@ function restoreFormValues(form, formKey) {
 
     if (savedData) {
         const formData = JSON.parse(savedData);
-
+        const isEditForm = form.action.includes('/edit/');
+        
         form.querySelectorAll('input, select').forEach(input => {
             const fieldId = input.name || input.id;
-            if (fieldId && formData.hasOwnProperty(fieldId)) {
+            if (fieldId && formData.hasOwnProperty(fieldId) && 
+                (!isEditForm || !input.value)) {
                 if (input.type === 'checkbox') {
                     input.checked = formData[fieldId];
                 } else {
