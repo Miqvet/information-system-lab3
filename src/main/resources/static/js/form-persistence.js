@@ -74,6 +74,9 @@ function attachFormHandlers(form, formKey) {
         saveFormValues(form, formKey);
     });
 
+    // Добавляем валидаторы к новой форме
+    attachValidators();
+
     form.addEventListener('submit', async function(e) {
         e.preventDefault();
         try {
