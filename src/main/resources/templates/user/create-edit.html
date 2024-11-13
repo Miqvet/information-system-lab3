@@ -215,9 +215,10 @@
                         <td>
                             <div class="action-buttons">
                                 <a th:href="@{/user/people/edit/{id}(id=${person1.id})}">Edit</a>
-                                <form th:action="@{/user/people/delete/{id}(id=${person1.id})}" method="post" class="button-form">
-                                    <button type="submit">Delete</button>
-                                </form>
+                                <a th:href="@{/user/people/delete/{id}(id=${person1.id})}">Delete</a>
+<!--                                <form th:action="@{/user/people/delete/{id}(id=${person1.id})}" method="post" class="button-form">-->
+<!--                                    <button type="submit">Delete</button>-->
+<!--                                </form>-->
                             </div>
                         </td>
                     </tr>

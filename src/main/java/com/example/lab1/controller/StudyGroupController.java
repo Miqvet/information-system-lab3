@@ -222,36 +222,10 @@ public class StudyGroupController {
                 model.addAttribute(ERROR_MESSAGE, "У вас нет прав для удаления этой группы");
                 return ERROR_403;
             }
-            model.addAttribute(ERROR_MESSAGE, "Используйте метод Post для данной операции");
-            return ERROR_WINDOW;
-        } catch (NumberFormatException e) {
-            model.addAttribute(ERROR_MESSAGE, INVALID_ID_FORMAT);
-            return ERROR_WINDOW;
-        }catch (NoSuchElementException e){
-            return ERROR_404;
-        }catch (Exception e) {
-            model.addAttribute(ERROR_MESSAGE, ERROR_REQUEST_MESSAGE + e.getMessage());
-            return ERROR_WINDOW;
-        }
-    }
-
-    @PostMapping("/user/group/delete/{id}")
-    public String deleteStudyGroup(@PathVariable String id, 
-                                 Principal principal, 
-                                 Model model) {
-        try {
-            int groupId = Integer.parseInt(id);
-            StudyGroup studyGroup = studyGroupService.getById(groupId);
-
-            if (!principal.getName().equals(studyGroup.getCreatedBy().getUsername()) && !isAdmin(principal)) {
-                model.addAttribute(ERROR_MESSAGE, "У вас нет прав для удаления этой группы");
-                return ERROR_403;
-            }
 
             studyGroupService.deleteById(groupId);
             webSocketController.notifyClients(DELETE_MESSAGE + groupId);
             return REDIRECT_USER;
-
         } catch (NumberFormatException e) {
             model.addAttribute(ERROR_MESSAGE, INVALID_ID_FORMAT);
             return ERROR_WINDOW;
