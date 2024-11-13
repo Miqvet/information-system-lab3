@@ -70,7 +70,7 @@ public class SecurityConfig {
                 .exceptionHandling(exception -> exception
                         .accessDeniedPage("/access-denied")
                 )
-                // Своего рода отключение CORS (разрешение запросов со всех доменов)
+                // Своего рода отключение CORS (разрешение запросов со всех доменов) можно кнч и просто передать через :: стандатную реализацию
                 .cors(cors -> cors.configurationSource(request -> {
                     var corsConfiguration = new CorsConfiguration();
                     corsConfiguration.setAllowedOriginPatterns(List.of("*"));

@@ -14,7 +14,6 @@
 
 <h1>Study Group: <span th:text="${studyGroup.name}"></span></h1>
 <div class="container">
-    <!-- Basic Group Information -->
     <div class="section">
         <div class="section-header">Group Information</div>
         <div class="field">ID: <span th:text="${studyGroup.id}"></span></div>
@@ -28,14 +27,12 @@
         <div class="field">Semester: <span th:text="${studyGroup.semesterEnum != null ? studyGroup.semesterEnum : 'N/A'}"></span></div>
     </div>
 
-    <!-- Coordinates Information -->
     <div class="section">
         <div class="section-header">Coordinates</div>
         <div class="field">X: <span th:text="${studyGroup.coordinates.x}"></span></div>
         <div class="field">Y: <span th:text="${studyGroup.coordinates.y}"></span></div>
     </div>
 
-    <!-- Group Admin Information -->
     <div class="section">
         <div class="section-header">Group Admin</div>
         <div class="field">Name: <span th:text="${studyGroup.groupAdmin.name}"></span></div>
@@ -44,14 +41,12 @@
         <div class="field">Hair Color: <span th:text="${studyGroup.groupAdmin.hairColor}"></span></div>
         <div class="field">Nationality: <span th:text="${studyGroup.groupAdmin.nationality}"></span></div>
 
-        <!-- Group Admin Location -->
         <div class="section-header">Location</div>
         <div class="field">Location Name: <span th:text="${studyGroup.groupAdmin.location.name}"></span></div>
         <div class="field">Location X: <span th:text="${studyGroup.groupAdmin.location.x}"></span></div>
         <div class="field">Location Y: <span th:text="${studyGroup.groupAdmin.location.y}"></span></div>
     </div>
 
-    <!-- Creator Information -->
     <div class="section">
         <div class="section-header">Created By</div>
         <div class="field">User ID: <span th:text="${studyGroup.createdBy.id}"></span></div>
@@ -74,7 +69,6 @@
         });
     }
     function showUpdate(message) {
-        // Показываем уведомление
         Toastify({
             text: message,
             duration: 3000,

@@ -2,20 +2,16 @@ document.addEventListener('DOMContentLoaded', function() {
     const forms = document.querySelectorAll('.main-form');
 
     forms.forEach((form) => {
-        // Определяем тип формы (create или edit) на основе URL
         const isEditForm = form.action.includes('/edit/');
         const formType = form.action.includes('/people/') ? 'person' : 'group';
         const formKey = `form_${formType}_${isEditForm ? 'edit' : 'create'}`;
 
-        // Восстанавливаем значения
         restoreFormValues(form, formKey);
 
-        // Сохраняем при изменении
         form.addEventListener('input', function(e) {
             saveFormValues(form, formKey);
         });
 
-        // Обрабатываем отправку формы
         form.addEventListener('submit', async function(e) {
             e.preventDefault();
 
@@ -42,19 +38,15 @@ document.addEventListener('DOMContentLoaded', function() {
                     const tempDiv = document.createElement('div');
                     tempDiv.innerHTML = html;
 
-                    // Находим все формы в полученном HTML
                     const newForms = tempDiv.querySelectorAll('.main-form');
 
-                    // Ищем форму с тем же action URL
                     const matchingNewForm = Array.from(newForms).find(newForm =>
                         newForm.action === form.action
                     );
 
                     if (matchingNewForm) {
-                        // Заменяем только соответствующую форму
                         form.parentNode.replaceChild(matchingNewForm, form);
 
-                        // Переподключаем обработчики к новой форме
                         attachFormHandlers(matchingNewForm, formKey);
                     }
                 } else {
@@ -74,7 +66,6 @@ function attachFormHandlers(form, formKey) {
         saveFormValues(form, formKey);
     });
 
-    // Добавляем валидаторы к новой форме
     attachValidators();
 
     form.addEventListener('submit', async function(e) {

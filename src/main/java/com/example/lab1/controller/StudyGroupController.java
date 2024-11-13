@@ -12,6 +12,7 @@ import com.example.lab1.service.StudyGroupService;
 import com.example.lab1.service.UserService;
 import static com.example.lab1.common.AppConstants.*;
 
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 
@@ -46,12 +47,14 @@ public class StudyGroupController {
                            @RequestParam(defaultValue = "10") String size,
                            @RequestParam(defaultValue = "") String filterField,
                            @RequestParam(defaultValue = "") String filterValue,
-                           @RequestParam(defaultValue = "id") String sortBy) {
+                           @RequestParam(defaultValue = "id") String sortBy,
+                           HttpServletResponse response) {
         try {
             int pageNum = Integer.parseInt(page);
             int pageSize = Integer.parseInt(size);
             
             if (pageNum < 1 || pageSize < 1) {
+                response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
                 model.addAttribute(ERROR_MESSAGE, "Номер страницы и размер должны быть положительными числами");
                 return ERROR_WINDOW;
             }
@@ -85,52 +88,72 @@ public class StudyGroupController {
             return "user/main-page";
 
         } catch (NumberFormatException e) {
-            model.addAttribute(ERROR_MESSAGE, 
-                "Неверный формат параметров пагинации. Пожалуйста, используйте целые числа для номера страницы и размера.");
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            model.addAttribute(ERROR_MESSAGE, "Неверный формат параметров пагинации...");
             return ERROR_WINDOW;
         } catch (Exception e) {
+            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
             model.addAttribute(ERROR_MESSAGE, ERROR_REQUEST_MESSAGE + e.getMessage());
             return ERROR_WINDOW;
         }
     }
 
     @GetMapping("/user/create")
-    public String showCreateForm(HttpSession session, Model model) {
-        model.addAttribute(USERNAME_ATTR, session.getAttribute(USERNAME_ATTR));
-        model.addAttribute(IS_ADMIN_ATTR, session.getAttribute(IS_ADMIN_ATTR));
-        model.addAttribute(STUDY_GROUP_ATTR, new StudyGroup());
-        model.addAttribute(PERSON_ATTR, new Person());
-        createFullModel(model);
-        return CREATE_EDIT_PAGE;
+    public String showCreateForm(HttpSession session, Model model, HttpServletResponse response) {
+        try {
+            model.addAttribute(USERNAME_ATTR, session.getAttribute(USERNAME_ATTR));
+            model.addAttribute(IS_ADMIN_ATTR, session.getAttribute(IS_ADMIN_ATTR));
+            model.addAttribute(STUDY_GROUP_ATTR, new StudyGroup());
+            model.addAttribute(PERSON_ATTR, new Person());
+            createFullModel(model);
+            return CREATE_EDIT_PAGE;
+        } catch (Exception e) {
+            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            model.addAttribute(ERROR_MESSAGE, ERROR_REQUEST_MESSAGE + e.getMessage());
+            return ERROR_WINDOW;
+        }
     }
 
 
     @PostMapping("/user/group/create")
-    public String createStudyGroup(@Valid @ModelAttribute(STUDY_GROUP_ATTR ) StudyGroup studyGroup,
-                                   BindingResult result, Principal principal, Model model) {
+    public String createStudyGroup(@Valid @ModelAttribute(STUDY_GROUP_ATTR) StudyGroup studyGroup,
+                                   BindingResult result,
+                                   Principal principal,
+                                   Model model,
+                                   HttpServletResponse response) {
         if (result.hasErrors()) {
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             createFullModel(model);
             model.addAttribute(PERSON_ATTR, new Person());
             return CREATE_EDIT_PAGE;
         }
-        User currentUser = userService.findByUsername(principal.getName());
-        studyGroup.setCreatedBy(currentUser);
-        studyGroupService.save(studyGroup);
-        webSocketController.notifyClients(CREATE_MESSAGE);
-        return REDIRECT_USER;
+        try {
+            User currentUser = userService.findByUsername(principal.getName());
+            studyGroup.setCreatedBy(currentUser);
+            studyGroupService.save(studyGroup);
+            webSocketController.notifyClients(CREATE_MESSAGE);
+            return REDIRECT_USER;
+        } catch (Exception e) {
+            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            model.addAttribute(ERROR_MESSAGE, "Произошла ошибка при создании группы: " + e.getMessage());
+            createFullModel(model);
+            model.addAttribute(PERSON_ATTR, new Person());
+            return CREATE_EDIT_PAGE;
+        }
     }
 
     @GetMapping("/user/group/edit/{id}")
     public String showStudyGroupEditForm(HttpSession session, 
                                        @PathVariable String id,
                                        Principal principal, 
-                                       Model model) {
+                                       Model model,
+                                       HttpServletResponse response) {
         try {
             int studyGroupId = Integer.parseInt(id);
-
             StudyGroup studyGroup = studyGroupService.getById(studyGroupId);
 
             if (!studyGroup.isCanBeChanged()) {
+                response.setStatus(HttpServletResponse.SC_FORBIDDEN);
                 model.addAttribute(ERROR_MESSAGE, "Эта группа не может быть изменена");
                 return ERROR_403;
             }
@@ -140,8 +163,8 @@ public class StudyGroupController {
             boolean isAdmin = isAdmin(principal);
 
             if (!isCreator && !isAdmin) {
-                model.addAttribute(ERROR_MESSAGE, 
-                    "У вас нет прав для редактирования этой группы. Только создатель или администратор может её редактировать");
+                response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+                model.addAttribute(ERROR_MESSAGE, "У вас нет прав для редактирования этой группы...");
                 return ERROR_403;
             }
 
@@ -153,35 +176,40 @@ public class StudyGroupController {
             return CREATE_EDIT_PAGE;
 
         } catch (NumberFormatException e) {
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             model.addAttribute(ERROR_MESSAGE, INVALID_ID_FORMAT);
             return ERROR_WINDOW;
-        }catch (NoSuchElementException e){
+        } catch (NoSuchElementException e) {
+            response.setStatus(HttpServletResponse.SC_NOT_FOUND);
             return ERROR_404;
-        }catch (Exception e) {
+        } catch (Exception e) {
+            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
             model.addAttribute(ERROR_MESSAGE, ERROR_REQUEST_MESSAGE + e.getMessage());
             return ERROR_WINDOW;
         }
     }
 
     @PostMapping("/user/group/edit/{id}")
-    public String updateStudyGroup(@PathVariable String id, 
-                                 @Valid @ModelAttribute StudyGroup studyGroup, 
-                                 BindingResult result,
-                                 Principal principal, 
-                                 Model model) {
+    public String updateStudyGroup(@PathVariable String id,
+                                   @Valid @ModelAttribute StudyGroup studyGroup,
+                                   BindingResult result,
+                                   Principal principal,
+                                   Model model,
+                                   HttpServletResponse response) {
         try {
             var studyGroupId = Integer.parseInt(id);
             StudyGroup existingGroup = studyGroupService.getById(studyGroupId);
 
             model.addAttribute(PERSON_ATTR, new Person());
 
-      
             if (result.hasErrors()) {
+                response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
                 createFullModel(model);
                 return CREATE_EDIT_PAGE;
             }
 
             if (!existingGroup.isCanBeChanged()) {
+                response.setStatus(HttpServletResponse.SC_FORBIDDEN);
                 model.addAttribute(ERROR_MESSAGE, "Эта группа не может быть изменена");
                 return ERROR_403;
             }
@@ -191,8 +219,9 @@ public class StudyGroupController {
             boolean isAdmin = isAdmin(principal);
 
             if (!isCreator && !isAdmin) {
-                model.addAttribute(ERROR_MESSAGE, 
-                    "У вас нет прав для редактирования этой группы. Только создатель или администратор может её редактировать");
+                response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+                model.addAttribute(ERROR_MESSAGE,
+                        "У вас нет прав для редактирования этой группы. Только создатель или администратор может её редактировать");
                 return ERROR_403;
             }
 
@@ -201,11 +230,14 @@ public class StudyGroupController {
             return REDIRECT_USER;
 
         } catch (NumberFormatException e) {
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             model.addAttribute(ERROR_MESSAGE, INVALID_ID_FORMAT);
             return ERROR_WINDOW;
-        }catch (NoSuchElementException ignored){
+        } catch (NoSuchElementException ignored) {
+            response.setStatus(HttpServletResponse.SC_NOT_FOUND);
             return ERROR_404;
         } catch (Exception e) {
+            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
             model.addAttribute(ERROR_MESSAGE, ERROR_REQUEST_MESSAGE + e.getMessage());
             return ERROR_WINDOW;
         }
@@ -213,12 +245,14 @@ public class StudyGroupController {
     @GetMapping("/user/group/delete/{id}")
     public String getDeleteStudyGroup(@PathVariable String id,
                                       Principal principal,
-                                      Model model){
+                                      Model model,
+                                      HttpServletResponse response) {
         try {
             int groupId = Integer.parseInt(id);
             StudyGroup studyGroup = studyGroupService.getById(groupId);
 
             if (!principal.getName().equals(studyGroup.getCreatedBy().getUsername()) && !isAdmin(principal)) {
+                response.setStatus(HttpServletResponse.SC_FORBIDDEN);
                 model.addAttribute(ERROR_MESSAGE, "У вас нет прав для удаления этой группы");
                 return ERROR_403;
             }
@@ -227,38 +261,57 @@ public class StudyGroupController {
             webSocketController.notifyClients(DELETE_MESSAGE + groupId);
             return REDIRECT_USER;
         } catch (NumberFormatException e) {
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             model.addAttribute(ERROR_MESSAGE, INVALID_ID_FORMAT);
             return ERROR_WINDOW;
-        }catch (NoSuchElementException e){
+        } catch (NoSuchElementException e) {
+            response.setStatus(HttpServletResponse.SC_NOT_FOUND);
             return ERROR_404;
-        }catch (Exception e) {
+        } catch (Exception e) {
+            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
             model.addAttribute(ERROR_MESSAGE, ERROR_REQUEST_MESSAGE + e.getMessage());
             return ERROR_WINDOW;
         }
     }
 
     @GetMapping("/user/find")
-    public String findStudyGroup(@RequestParam("id") String id, Model model) {
+    public String findStudyGroup(@RequestParam("id") String id, 
+                           Model model,
+                           HttpServletResponse response) {
         try {
             long longId = Long.parseLong(id);
             StudyGroup studyGroup = studyGroupService.getById(Math.toIntExact(longId));
             model.addAttribute(STUDY_GROUP_ATTR, studyGroup);
             return "user/info-details";
         } catch (NumberFormatException e) {
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             model.addAttribute(ERROR_MESSAGE, "Неверный формат ID. Пожалуйста, введите числовое значение.");
             return ERROR_WINDOW;
-        } catch (RuntimeException e) {
+        } catch (NoSuchElementException e) {
+            response.setStatus(HttpServletResponse.SC_NOT_FOUND);
             model.addAttribute(ERROR_MESSAGE, "Такой группы нет проверти ID");
+            return ERROR_WINDOW;
+        } catch (Exception e) {
+            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            model.addAttribute(ERROR_MESSAGE, ERROR_REQUEST_MESSAGE + e.getMessage());
             return ERROR_WINDOW;
         }
     }
 
 
     @GetMapping("/user/visualization")
-    public String showVisualization(HttpSession session, Model model) {
-        model.addAttribute(USERNAME_ATTR, session.getAttribute(USERNAME_ATTR));
-        model.addAttribute(IS_ADMIN_ATTR, session.getAttribute(IS_ADMIN_ATTR));
-        return "user/visualization-page";
+    public String showVisualization(HttpSession session, 
+                              Model model,
+                              HttpServletResponse response) {
+        try {
+            model.addAttribute(USERNAME_ATTR, session.getAttribute(USERNAME_ATTR));
+            model.addAttribute(IS_ADMIN_ATTR, session.getAttribute(IS_ADMIN_ATTR));
+            return "user/visualization-page";
+        } catch (Exception e) {
+            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            model.addAttribute(ERROR_MESSAGE, ERROR_REQUEST_MESSAGE + e.getMessage());
+            return ERROR_WINDOW;
+        }
     }
 
 

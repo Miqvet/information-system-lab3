@@ -1,5 +1,5 @@
 document.addEventListener('DOMContentLoaded', function() {
-    // Обработка формы less-than
+
     document.getElementById('lessForm').addEventListener('submit', function(e) {
         e.preventDefault();
         const formData = new FormData(this);
@@ -17,7 +17,7 @@ document.addEventListener('DOMContentLoaded', function() {
             });
     });
 
-    // Обработка формы greater-than
+
     document.getElementById('greaterForm').addEventListener('submit', function(e) {
         e.preventDefault();
         const formData = new FormData(this);
@@ -35,7 +35,6 @@ document.addEventListener('DOMContentLoaded', function() {
             });
     });
 
-    // Обработка формы unique-admins
     document.getElementById('adminsForm').addEventListener('submit', function(e) {
         e.preventDefault();
 
@@ -49,7 +48,7 @@ document.addEventListener('DOMContentLoaded', function() {
             });
     });
 
-    // Обработка формы expel-group
+
     document.getElementById('expelForm').addEventListener('submit', function(e) {
         e.preventDefault();
         const formData = new FormData(this);
@@ -67,7 +66,7 @@ document.addEventListener('DOMContentLoaded', function() {
             });
     });
 
-    // Обработка формы transfer-students
+
     document.getElementById('transferForm').addEventListener('submit', function(e) {
         e.preventDefault();
         const formData = new FormData(this);
@@ -89,7 +88,6 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 
-// Добавим функцию для отображения ошибок
 function showError(formId, error) {
     const errorElement = document.createElement('div');
     errorElement.className = 'error-message';
@@ -98,7 +96,6 @@ function showError(formId, error) {
     setTimeout(() => errorElement.remove(), 3000);
 }
 
-// Добавим функцию для отображения успешных сообщений
 function showSuccess(formId, message) {
     const successElement = document.createElement('div');
     successElement.className = 'success-message';

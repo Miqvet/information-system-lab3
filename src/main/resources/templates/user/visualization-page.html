@@ -19,7 +19,6 @@
 <div th:replace="~{fragments/common :: menu}"></div>
 <h1>StudyGroup Visualization</h1>
 
-<!-- Контейнер для визуализации -->
 <div id="visualizationContainer">
     <canvas id="visualizationCanvas" width="600" height="600"></canvas>
 </div>
@@ -36,11 +35,10 @@
     </div>
 </div>
 
-<!-- Текстовое описание -->
 <p class="info-text">Here is a visual representation of your Study Group's performance.</p>
 
 <style>
-    /* Стиль для модального окна */
+    /* Стили для модального окна */
     .modal {
         position: fixed;
         z-index: 1000;
@@ -60,17 +58,17 @@
         border-radius: 10px;
         width: 300px;
         text-align: center;
-        position: relative; /* Чтобы иконка закрытия была позиционирована внутри окна */
+        position: relative;
     }
 
     .close-btn {
         position: absolute;
         right: 10px;
         top: 10px;
-        font-size: 24px; /* Увеличим размер для видимости */
+        font-size: 24px;
         color: #333;
         cursor: pointer;
-        font-weight: bold; /* Сделаем иконку жирной */
+        font-weight: bold;
     }
 
     #editLink {
@@ -89,14 +87,12 @@
     const ctx = canvas.getContext('2d');
     const studyGroupsArray = [];
 
-    // AJAX-запрос для загрузки данных StudyGroup
     fetch('/user/study-groups')
         .then(response => response.json())
         .then(studyGroups => {
             const canvas = document.getElementById('visualizationCanvas');
             const ctx = canvas.getContext('2d');
 
-            // Для удаления всех элементов, очистите канвас
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             const userColors = {};
             console.log(studyGroups)
@@ -109,7 +105,6 @@
                 const y = group.coordinates.y + 280;
                 const size = Math.sqrt(group.studentsCount) * 5;
 
-                // Сохраняем объект с его координатами и ID
                 studyGroupsArray.push({
                     id: group.id,
                     x: x,
@@ -146,11 +141,9 @@
         const x = event.clientX - rect.left;
         const y = event.clientY - rect.top;
 
-        // Проверяем, попадает ли клик в один из объектов
         studyGroupsArray.forEach(group => {
             if (x >= group.x && x <= group.x + group.size &&
                 y >= group.y && y <= group.y + group.size) {
-                // Открываем модальное окно с информацией об объекте
                 showModal(group);
             }
         });
@@ -160,7 +153,7 @@
         const modal = document.getElementById('infoModal');
         document.getElementById('groupTitle').innerText = group.name;
         document.getElementById('groupInfo').innerText = `Created by: ${group.createdBy}\nStudents: ${group.studentsCount}`;
-        document.getElementById('editLink').href = `/user/study-group/edit/${group.id}`;
+        document.getElementById('editLink').href = `/user/group/edit/${group.id}`;
         modal.style.display = 'flex';
     }
 
@@ -192,14 +185,12 @@
             backgroundColor: "linear-gradient(to right, #00b09b, #96c93d)",
             onClick: function(){}
         }).showToast();
-        // AJAX-запрос для загрузки данных StudyGroup
         fetch('/user/study-groups')
             .then(response => response.json())
             .then(studyGroups => {
                 const canvas = document.getElementById('visualizationCanvas');
                 const ctx = canvas.getContext('2d');
 
-                // Для удаления всех элементов, очистите канвас
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
                 const userColors = {};
                 console.log(studyGroups)
@@ -212,7 +203,6 @@
                     const y = group.coordinates.y + 280;
                     const size = Math.sqrt(group.studentsCount) * 5;
 
-                    // Сохраняем объект с его координатами и ID
                     studyGroupsArray.push({
                         id: group.id,
                         x: x,

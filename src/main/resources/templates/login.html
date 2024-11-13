@@ -11,11 +11,10 @@
 </head>
 <body>
 <div th:replace="~{fragments/common :: menu}"></div>
-<!-- Основной контент -->
+
 <div class="content">
     <h1 th:text="${message}">Welcome</h1>
 
-    <!-- Форма авторизации -->
     <form th:action="@{/login}" method="post">
         <h2>Login</h2>
         <div>

@@ -7,12 +7,11 @@
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700&display=swap" rel="stylesheet">
     <script th:src="@{/js/script.js}"></script>
 
-    <!-- Toastify JS  -->
     <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
 </head>
 <body>
-    <!-- Фрагмент для меню -->
+
     <div th:fragment="menu">
         <div class="user-info" th:if="${username != null}">
             <span th:text="${username}"></span>

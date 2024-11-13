@@ -97,7 +97,6 @@ function attachValidators() {
         const isPersonForm = form.action.includes('/people/');
         const rules = isPersonForm ? personValidationRules : studyGroupValidationRules;
 
-        // Добавляем валидаторы для каждого поля
         Object.keys(rules).forEach(fieldName => {
             const field = form.querySelector(`[name="${fieldName}"]`);
             if (field) {
@@ -116,7 +115,6 @@ function attachValidators() {
             }
         });
 
-        // Валидация при отправке формы
         form.addEventListener('submit', function(e) {
             let isValid = true;
             Object.keys(rules).forEach(fieldName => {
@@ -136,44 +134,37 @@ function attachValidators() {
 }
 
 function validateField(field, rules) {
-    // Удаляем все существующие ошибки для этого поля
     const allErrors = field.parentElement.querySelectorAll('.form-errors');
     allErrors.forEach(error => error.remove());
     
     let isValid = true;
     let errorMessage = '';
 
-    // Проверка на обязательное поле
     if (rules.required && !field.value.trim()) {
         isValid = false;
         errorMessage = rules.message;
     }
 
-    // Проверка паттерна
     if (rules.pattern && field.value.trim() && !rules.pattern.test(field.value)) {
         isValid = false;
         errorMessage = rules.message;
     }
 
-    // Проверка минимальной длины
     if (rules.minLength && field.value.length < rules.minLength) {
         isValid = false;
         errorMessage = rules.message;
     }
 
-    // Проверка максимальной длины
     if (rules.maxLength && field.value.length > rules.maxLength) {
         isValid = false;
         errorMessage = rules.message;
     }
 
-    // Проверка минимального значения
     if (rules.min !== undefined && field.value !== '' && Number(field.value) < rules.min) {
         isValid = false;
         errorMessage = rules.message;
     }
 
-    // Проверка максимального значения
     if (rules.max !== undefined && field.value !== '' && Number(field.value) > rules.max) {
         isValid = false;
         errorMessage = rules.message;
