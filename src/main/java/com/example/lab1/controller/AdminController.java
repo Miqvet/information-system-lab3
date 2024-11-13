@@ -54,7 +54,6 @@ public class AdminController {
     }
 
 
-
     @GetMapping("/admin-page")
     public String adminPageRequest(HttpSession session, Model model) {
         model.addAttribute(USERNAME_ATTR, session.getAttribute(USERNAME_ATTR));

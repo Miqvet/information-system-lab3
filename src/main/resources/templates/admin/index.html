@@ -26,8 +26,7 @@
             <td th:text="${user.id}">Username</td>
             <td th:text="${user.username}">Username</td>
             <td>
-                <form th:action="@{/admin/approves}" method="post">
-                    <input type="hidden" name="userId" th:value="${user.id}">
+                <form th:onsubmit="event.preventDefault(); approveAdminRequest([[${user.id}]], this)">
                     <button type="submit">Approve</button>
                 </form>
             </td>
@@ -37,4 +36,53 @@
 
 
 </body>
+<script text="javascript">
+    function approveAdminRequest(userId, button) {
+    fetch('/admin/approves', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: `userId=${userId}`
+    })
+    .then(response => {
+        if (response.ok) {
+            // Обновляем таблицу
+            fetch('/admin/approves')
+                .then(response => response.text())
+                .then(html => {
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(html, 'text/html');
+                    const newTable = doc.querySelector('table');
+                    const currentTable = document.querySelector('table');
+                    currentTable.innerHTML = newTable.innerHTML;
+                });
+
+            // Показываем уведомление об успехе
+            Toastify({
+                text: "Запрос успешно одобрен!",
+                duration: 3000,
+                gravity: "top",
+                position: "right",
+                style: {
+                    background: "#4CAF50"
+                }
+            }).showToast();
+        } else {
+            throw new Error('Что-то пошло не так');
+        }
+    })
+    .catch(error => {
+        Toastify({
+            text: "Ошибка при обработке запроса",
+            duration: 3000,
+            gravity: "top",
+            position: "right",
+            style: {
+                background: "#f44336"
+            }
+        }).showToast();
+    });
+}
+</script>
 </html>
