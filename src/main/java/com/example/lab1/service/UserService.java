@@ -3,7 +3,8 @@ package com.example.lab1.service;
 
 import com.example.lab1.domain.entity.auth.User;
 import com.example.lab1.repository.auth.UserRepository;
-import lombok.AllArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -11,13 +12,26 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class UserService implements UserDetailsService {
-    private UserRepository userRepository;
-    public UserService(UserRepository userRepository) {}
+    private final UserRepository userRepository;
+    
+    public UserService(UserRepository userRepository) {
+        this.userRepository = userRepository;
+    }
+
+    @Cacheable(value = "users", key = "#username")
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        System.out.println("Вызвали загрузку юзера");
         return userRepository.findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
     }
+
+    @CacheEvict(value = "users", key = "#user.username")
+    public UserDetails save(User user) {
+        System.out.println("Вызвали save");
+        return userRepository.save(user);
+    }
+
     public boolean existsByUsername(String username) {
         return userRepository.existsByUsername(username);
     }
@@ -25,10 +39,6 @@ public class UserService implements UserDetailsService {
     public User findByUsername(String username) {
         return userRepository.findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
-    }
-
-    public UserDetails save(User user) {
-        return userRepository.save(user);
     }
 
     public UserDetails create(User user) {
