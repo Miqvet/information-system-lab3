@@ -57,12 +57,28 @@ document.addEventListener('DOMContentLoaded', function() {
             method: 'POST',
             body: formData
         })
-            .then(response => response.text())
+            .then(response => {
+                if (response.status === 404) {
+                    throw new Error('Ресурс не найден');
+                }
+                return response.text();
+            })
             .then(html => {
                 const parser = new DOMParser();
                 const doc = parser.parseFromString(html, 'text/html');
                 const newForm = doc.getElementById('expelForm');
                 document.getElementById('expelForm').innerHTML = newForm.innerHTML;
+            })
+            .catch(error => {
+                Toastify({
+                    text: error.message || "Произошла ошибка при обработке запроса",
+                    duration: 3000,
+                    gravity: "top",
+                    position: "right",
+                    style: {
+                        background: "#f44336"
+                    }
+                }).showToast();
             });
     });
 
@@ -75,7 +91,12 @@ document.addEventListener('DOMContentLoaded', function() {
             method: 'POST',
             body: formData
         })
-            .then(response => response.text())
+            .then(response => {
+                if (response.status === 404) {
+                    throw new Error('Ресурс не найден');
+                }
+                return response.text();
+            })
             .then(html => {
                 const parser = new DOMParser();
                 const doc = parser.parseFromString(html, 'text/html');
@@ -83,7 +104,15 @@ document.addEventListener('DOMContentLoaded', function() {
                 document.getElementById('transferForm').innerHTML = newForm.innerHTML;
             })
             .catch(error => {
-                console.error('Error:', error);
+                Toastify({
+                    text: error.message || "Произошла ошибка при обработке запроса",
+                    duration: 3000,
+                    gravity: "top",
+                    position: "right",
+                    style: {
+                        background: "#f44336"
+                    }
+                }).showToast();
             });
     });
 });

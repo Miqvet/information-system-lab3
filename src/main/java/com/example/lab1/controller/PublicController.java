@@ -36,52 +36,34 @@ public class PublicController {
     public String home(HttpSession session, 
                       Model model, 
                       HttpServletResponse response) {
-        try {
-            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-            var isAdmin = authentication.getAuthorities().stream()
-                    .anyMatch(role -> role.getAuthority().equals(ROLE_ADMIN));
-            model.addAttribute(USERNAME_ATTR, session.getAttribute(USERNAME_ATTR));
-            model.addAttribute(IS_ADMIN_ATTR, isAdmin);
-            response.setStatus(HttpServletResponse.SC_OK);
-            return "home";
-        } catch (Exception e) {
-            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-            model.addAttribute(ERROR_MESSAGE, "Произошла ошибка при загрузке домашней страницы: " + e.getMessage());
-            return ERROR_WINDOW;
-        }
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        var isAdmin = authentication.getAuthorities().stream()
+                .anyMatch(role -> role.getAuthority().equals(ROLE_ADMIN));
+        model.addAttribute(USERNAME_ATTR, session.getAttribute(USERNAME_ATTR));
+        model.addAttribute(IS_ADMIN_ATTR, isAdmin);
+        response.setStatus(HttpServletResponse.SC_OK);
+        return "home";
     }
 
     @GetMapping("/login")
     public String login(HttpSession session, 
                        Model model, 
                        HttpServletResponse response) {
-        try {
-            model.addAttribute(USERNAME_ATTR, session.getAttribute(USERNAME_ATTR));
-            model.addAttribute(IS_ADMIN_ATTR, session.getAttribute(IS_ADMIN_ATTR));
-            response.setStatus(HttpServletResponse.SC_OK);
-            return "login";
-        } catch (Exception e) {
-            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-            model.addAttribute(ERROR_MESSAGE, "Произошла ошибка при загрузке страницы входа: " + e.getMessage());
-            return ERROR_WINDOW;
-        }
+        model.addAttribute(USERNAME_ATTR, session.getAttribute(USERNAME_ATTR));
+        model.addAttribute(IS_ADMIN_ATTR, session.getAttribute(IS_ADMIN_ATTR));
+        response.setStatus(HttpServletResponse.SC_OK);
+        return "login";
     }
 
     @GetMapping("/register")
     public String showRegistrationForm(HttpSession session, 
                                      Model model, 
                                      HttpServletResponse response) {
-        try {
             model.addAttribute(USERNAME_ATTR, session.getAttribute(USERNAME_ATTR));
             model.addAttribute(IS_ADMIN_ATTR, session.getAttribute(IS_ADMIN_ATTR));
             model.addAttribute("user", new User());
             response.setStatus(HttpServletResponse.SC_OK);
             return REGISTER_PAGE;
-        } catch (Exception e) {
-            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-            model.addAttribute(ERROR_MESSAGE, "Произошла ошибка при загрузке формы регистрации: " + e.getMessage());
-            return ERROR_WINDOW;
-        }
     }
 
     @PostMapping("/register")
@@ -89,44 +71,34 @@ public class PublicController {
                         BindingResult result, 
                         Model model,
                         HttpServletResponse response) {
-        try {
-            if (userService.existsByUsername(user.getUsername())) {
-                response.setStatus(HttpServletResponse.SC_CONFLICT); // 409 Conflict
-                result.rejectValue(USERNAME_ATTR, String.valueOf(HttpStatusCode.valueOf(409)), 
+        if (userService.existsByUsername(user.getUsername())) {
+            response.setStatus(HttpServletResponse.SC_CONFLICT); // 409 Conflict
+            result.rejectValue(USERNAME_ATTR, String.valueOf(HttpStatusCode.valueOf(409)), 
                     "Пользователь с таким логином уже существует");
-                return REGISTER_PAGE;
-            }
-
-            if (result.hasErrors()) {
-                response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-                return REGISTER_PAGE;
-            }
-
-            user.setPassword(passwordEncoder.encode(user.getPassword()));
-
-            if (!userRepository.existsByRole_Name(RoleName.valueOf(ROLE_ADMIN)) && user.isWishToBeAdmin()) {
-                Role userRole = roleRepository.findByName(RoleName.valueOf(ROLE_ADMIN))
-                    .orElseThrow(() -> new RuntimeException("Role not found"));
-                user.setRole(userRole);
-                user.setWishToBeAdmin(false);
-            } else {
-                Role userRole = roleRepository.findByName(RoleName.valueOf(ROLE_USER))
-                    .orElseThrow(() -> new RuntimeException("Role not found"));
-                user.setRole(userRole);
-            }
-            
-            userService.save(user);
-            response.setStatus(HttpServletResponse.SC_CREATED);
-            return "redirect:/login";
-            
-        } catch (RuntimeException e) {
-            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-            model.addAttribute(ERROR_MESSAGE, "Ошибка при регистрации: " + e.getMessage());
-            return ERROR_WINDOW;
-        } catch (Exception e) {
-            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-            model.addAttribute(ERROR_MESSAGE, "Непредвиденная ошибка при регистрации: " + e.getMessage());
-            return ERROR_WINDOW;
+            return REGISTER_PAGE;
         }
+
+        if (result.hasErrors()) {
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            return REGISTER_PAGE;
+        }
+
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
+
+        if (!userRepository.existsByRole_Name(RoleName.valueOf(ROLE_ADMIN)) && user.isWishToBeAdmin()) {
+            Role userRole = roleRepository.findByName(RoleName.valueOf(ROLE_ADMIN))
+                    .orElseThrow(() -> new RuntimeException("Role not found"));
+            user.setRole(userRole);
+            user.setWishToBeAdmin(false);
+        } else {
+            Role userRole = roleRepository.findByName(RoleName.valueOf(ROLE_USER))
+                    .orElseThrow(() -> new RuntimeException("Role not found"));
+            user.setRole(userRole);
+        }
+            
+        userService.save(user);
+        response.setStatus(HttpServletResponse.SC_CREATED);
+        return "redirect:/login";
+
     }
 }

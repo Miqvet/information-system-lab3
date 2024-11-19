@@ -25,7 +25,6 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
-import java.util.NoSuchElementException;
 
 
 
@@ -40,19 +39,15 @@ public class PersonController {
 
     @GetMapping("/create")
     public String showCreateForm(HttpSession session, Model model, HttpServletResponse response) {
-        try {
-            model.addAttribute(USERNAME_ATTR, session.getAttribute(USERNAME_ATTR));
-            model.addAttribute(IS_ADMIN_ATTR, session.getAttribute(IS_ADMIN_ATTR));
-            model.addAttribute(STUDY_GROUP_ATTR, new StudyGroup());
-            model.addAttribute(PERSON_ATTR, new Person());
-            createFullModel(model);
-            response.setStatus(HttpServletResponse.SC_OK);
-            return "user/create-edit";
-        } catch (Exception e) {
-            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-            model.addAttribute(ERROR_MESSAGE, ERROR_REQUEST_MESSAGE + e.getMessage());
-            return ERROR_WINDOW;
-        }
+
+        model.addAttribute(USERNAME_ATTR, session.getAttribute(USERNAME_ATTR));
+        model.addAttribute(IS_ADMIN_ATTR, session.getAttribute(IS_ADMIN_ATTR));
+        model.addAttribute(STUDY_GROUP_ATTR, new StudyGroup());
+        model.addAttribute(PERSON_ATTR, new Person());
+        createFullModel(model);
+        response.setStatus(HttpServletResponse.SC_OK);
+        return "user/create-edit";
+
     }
 
     @PostMapping("/create")
@@ -65,19 +60,13 @@ public class PersonController {
             createFullModel(model);
             return CREATE_EDIT_PAGE;
         }
-        try {
-            User currentUser = userService.findByUsername(principal.getName());
-            person.setCreatedBy(currentUser);
-            personService.savePerson(person);
-            response.setStatus(HttpServletResponse.SC_CREATED);
-            webSocketController.notifyClients(CREATE_MESSAGE);
-            return REDIRECT_USER;
-        } catch (IllegalArgumentException e) {
-            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            model.addAttribute("customPassportError", e.getMessage());
-            createFullModel(model);
-            return CREATE_EDIT_PAGE;
-        }
+        User currentUser = userService.findByUsername(principal.getName());
+        person.setCreatedBy(currentUser);
+        personService.savePerson(person);
+        response.setStatus(HttpServletResponse.SC_CREATED);
+        webSocketController.notifyClients(CREATE_MESSAGE);
+        return REDIRECT_USER;
+
     }
 
     @GetMapping("/edit/{id}")
@@ -86,37 +75,24 @@ public class PersonController {
                                      Principal principal,
                                      Model model,
                                      HttpServletResponse response) {
-        try {
-            long personId = Long.parseLong(id);
-            Person person = personService.getById(personId);
+        long personId = Long.parseLong(id);
+        Person person = personService.getById(personId);
 
-            if (!person.isCanBeChanged() ||
-                    (!principal.getName().equals(person.getCreatedBy().getUsername()) && !isAdmin(principal))) {
-                response.setStatus(HttpServletResponse.SC_FORBIDDEN);
-                model.addAttribute(ERROR_MESSAGE, "У вас нет прав для редактирования этого администратора");
-                return ERROR_403;
-            }
-
-            model.addAttribute(USERNAME_ATTR, session.getAttribute(USERNAME_ATTR));
-            model.addAttribute(IS_ADMIN_ATTR, session.getAttribute(IS_ADMIN_ATTR));
-            model.addAttribute(PERSON_ATTR, person);
-            model.addAttribute(STUDY_GROUP_ATTR, new StudyGroup());
-            createFullModel(model);
-            response.setStatus(HttpServletResponse.SC_OK);
-            return CREATE_EDIT_PAGE;
-
-        } catch (NumberFormatException e) {
-            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            model.addAttribute(ERROR_MESSAGE, INVALID_ID_FORMAT);
-            return ERROR_404;
-        } catch (NoSuchElementException e) {
-            response.setStatus(HttpServletResponse.SC_NOT_FOUND);
-            return ERROR_404;
-        } catch (Exception e) {
-            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-            model.addAttribute(ERROR_MESSAGE, ERROR_REQUEST_MESSAGE + e.getMessage());
-            return ERROR_WINDOW;
+        if (!person.isCanBeChanged() ||
+                (!principal.getName().equals(person.getCreatedBy().getUsername()) && !isAdmin(principal))) {
+            response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+            model.addAttribute(ERROR_MESSAGE, "У вас нет прав для редактирования этого администратора");
+            return ERROR_403;
         }
+
+        model.addAttribute(USERNAME_ATTR, session.getAttribute(USERNAME_ATTR));
+        model.addAttribute(IS_ADMIN_ATTR, session.getAttribute(IS_ADMIN_ATTR));
+        model.addAttribute(PERSON_ATTR, person);
+        model.addAttribute(STUDY_GROUP_ATTR, new StudyGroup());
+        createFullModel(model);
+        response.setStatus(HttpServletResponse.SC_OK);
+        return CREATE_EDIT_PAGE;
+
     }
 
     @PostMapping("/edit/{id}")
@@ -126,46 +102,28 @@ public class PersonController {
                                Principal principal,
                                Model model,
                                HttpServletResponse response) {
-        try {
-            long personId = Long.parseLong(id);
-            model.addAttribute(STUDY_GROUP_ATTR, new StudyGroup());
+        long personId = Long.parseLong(id);
+        model.addAttribute(STUDY_GROUP_ATTR, new StudyGroup());
 
-            if (result.hasErrors()) {
-                response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-                createFullModel(model);
-                return CREATE_EDIT_PAGE;
-            }
-
-            Person existingPerson = personService.getById(personId);
-
-            if (!existingPerson.isCanBeChanged() ||
-                    (!principal.getName().equals(existingPerson.getCreatedBy().getUsername()) && !isAdmin(principal))) {
-                response.setStatus(HttpServletResponse.SC_FORBIDDEN);
-                model.addAttribute(ERROR_MESSAGE, "У вас нет прав для редактирования этого администратора");
-                return ERROR_403;
-            }
-
-            personService.update(personId, person);
-            response.setStatus(HttpServletResponse.SC_OK);
-            webSocketController.notifyClients(EDIT_MESSAGE + personId);
-            return REDIRECT_USER;
-        } catch (NumberFormatException e) {
+        if (result.hasErrors()) {
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            model.addAttribute(ERROR_MESSAGE, "Неверный формат ID администратора");
-            return ERROR_WINDOW;
-        } catch (NoSuchElementException e) {
-            response.setStatus(HttpServletResponse.SC_NOT_FOUND);
-            return ERROR_404;
-        } catch (IllegalArgumentException e) {
-            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            model.addAttribute("customPassportError", e.getMessage());
             createFullModel(model);
             return CREATE_EDIT_PAGE;
-        } catch (Exception e) {
-            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-            model.addAttribute(ERROR_MESSAGE, ERROR_REQUEST_MESSAGE + e.getMessage());
-            return ERROR_WINDOW;
         }
+
+        Person existingPerson = personService.getById(personId);
+
+        if (!existingPerson.isCanBeChanged() ||
+                (!principal.getName().equals(existingPerson.getCreatedBy().getUsername()) && !isAdmin(principal))) {
+            response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+            model.addAttribute(ERROR_MESSAGE, "У вас нет прав для редактирования этого администратора");
+            return ERROR_403;
+        }
+
+        personService.update(personId, person);
+        response.setStatus(HttpServletResponse.SC_OK);
+        webSocketController.notifyClients(EDIT_MESSAGE + personId);
+        return REDIRECT_USER;
     }
 
     @GetMapping("/delete/{id}")
@@ -173,32 +131,19 @@ public class PersonController {
                                Principal principal,
                                Model model,
                                HttpServletResponse response) {
-        try {
-            long personId = Long.parseLong(id);
-            Person person = personService.getById(personId);
+        long personId = Long.parseLong(id);
+        Person person = personService.getById(personId);
 
-            if (!principal.getName().equals(person.getCreatedBy().getUsername()) && !isAdmin(principal)) {
-                response.setStatus(HttpServletResponse.SC_FORBIDDEN);
-                model.addAttribute(ERROR_MESSAGE, "У вас нет прав для удаления этого администратора");
-                return ERROR_403;
-            }
-
-            personService.deleteById(personId);
-            response.setStatus(HttpServletResponse.SC_OK);
-            webSocketController.notifyClients(DELETE_MESSAGE + personId);
-            return REDIRECT_USER;
-        } catch (NumberFormatException e) {
-            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            model.addAttribute(ERROR_MESSAGE, "Неверный формат ID администратора");
-            return ERROR_WINDOW;
-        } catch (NoSuchElementException e) {
-            response.setStatus(HttpServletResponse.SC_NOT_FOUND);
-            return ERROR_404;
-        } catch (Exception e) {
-            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-            model.addAttribute(ERROR_MESSAGE, "Произошла ошибка при удалении: " + e.getMessage());
-            return ERROR_WINDOW;
+        if (!principal.getName().equals(person.getCreatedBy().getUsername()) && !isAdmin(principal)) {
+            response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+            model.addAttribute(ERROR_MESSAGE, "У вас нет прав для удаления этого администратора");
+            return ERROR_403;
         }
+
+        personService.deleteById(personId);
+        response.setStatus(HttpServletResponse.SC_OK);
+        webSocketController.notifyClients(DELETE_MESSAGE + personId);
+        return REDIRECT_USER;
     }
     private void createFullModel(Model model){
         model.addAttribute("formOfEducationEnum", FormOfEducation.values());
