@@ -22,7 +22,7 @@ public class Person implements Serializable {
     @NotEmpty
     @Column(unique = true, nullable = false)
     @Size(min = 1, max = 42, message = "Размер строки должен быть от 1 до 42 символов")
-    @Pattern(regexp = "^[1234567890a-zA-Zа-яА-Я]+$", message = "Строка не должна быть пустой или состоять только из пробелов")
+    @Pattern(regexp = "^[1234567890a-zA-Zа-яА-Я]+$", message = "Паспорт должен содержать только буквы и цифры")
     private String passportID;
 
     @NotNull(message = "Имя не может быть null")
