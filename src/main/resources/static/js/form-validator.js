@@ -6,7 +6,7 @@ function attachValidators() {
     const studyGroupValidationRules = {
         'name': {
             pattern: /^[a-zA-Zа-яА-Я0-9]+(?:\s[a-zA-Zа-яА-Я0-9]+)*$/,
-            message: 'Название группы должно содержать осмысленные символы'
+            message: 'Имя должно содержать только буквы и пробелы(максимум один пробел между словами)'
         },
         'coordinates.x': {
             min: -407,
@@ -68,7 +68,7 @@ function attachValidators() {
         'name': {
             pattern: /^[a-zA-Zа-яА-Я]+(?:\s[a-zA-Zа-яА-Я]+)*$/,
             required: true,
-            message: 'Имя должно содержать только буквы и пробелы'
+            message: 'Имя должно содержать только буквы и пробелы(максимум один пробел между словами)'
         },
         'hairColor': {
             required: true,

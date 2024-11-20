@@ -22,7 +22,7 @@ public class StudyGroup implements Serializable {
 
     @NotNull(message = "Название группы не может быть null")
     @NotEmpty(message = "Название группы не должно быть пустым")
-    @Pattern(regexp = "^[a-zA-Zа-яА-Я0-9]+(?:\\s[a-zA-Zа-яА-Я0-9]+)*$", message = "Название группы должно содержать осмысленные символы")
+    @Pattern(regexp = "^[a-zA-Zа-яА-Я0-9]+(?:\\s[a-zA-Zа-яА-Я0-9]+)*$", message = "Имя должно содержать только буквы и пробелы(максимум один пробел между словами)")
     private String name;
 
     @Valid

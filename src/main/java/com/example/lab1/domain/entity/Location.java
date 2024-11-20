@@ -18,7 +18,6 @@ public class Location implements Serializable {
     @NotNull
     private Double y;
 
-    @NotNull
     @NotEmpty
     private String name;
 }

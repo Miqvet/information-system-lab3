@@ -19,15 +19,15 @@ public class Person implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotEmpty
+    @NotEmpty(message = "Паспорт не может быть пустым")
     @Column(unique = true, nullable = false)
-    @Size(min = 1, max = 42, message = "Размер строки должен быть от 1 до 42 символов")
-    @Pattern(regexp = "^[1234567890a-zA-Zа-яА-Я]+$", message = "Паспорт должен содержать только буквы и цифры")
+    @Size(min = 1, max = 42, message = "Паспорт должен содержать от 1 до 42 символов")
+    @Pattern(regexp = "^[1234567890a-zA-Zа-яА-Я]+$", message = "Паспорт должен состоять из букв и цифр")
     private String passportID;
 
     @NotNull(message = "Имя не может быть null")
     @NotEmpty(message = "Имя не должно быть пустым")
-    @Pattern(regexp = "^[a-zA-Zа-яА-Я]+(?:\\s[a-zA-Zа-яА-Я]+)*$", message = "Имя должно содержать только буквы и пробелы")
+    @Pattern(regexp = "^[a-zA-Zа-яА-Я]+(?:\\s[a-zA-Zа-яА-Я]+)*$", message = "Имя должно содержать только буквы и пробелы(максимум один пробел между словами)")
     private String name;
 
     @Enumerated(EnumType.STRING)

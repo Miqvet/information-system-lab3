@@ -17,9 +17,9 @@ public class Coordinates implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotNull(message = "X coordinate is required")
-    @Min(value = -407, message = "X должна быть >= -407")
-    @Max(value = 500, message = "X меньше 500")
+    @NotNull(message = "X координата обязательна")
+    @Min(value = -407, message = "X должна быть больше -407")
+    @Max(value = 500, message = "X должна быть меньше 500")
     private Long x; 
 
     @NotNull
