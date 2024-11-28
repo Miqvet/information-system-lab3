@@ -2,8 +2,8 @@
     {
         "name": "1111",
         "coordinates": {
-            "x": 100,
-            "y": 200
+            "x": 1,
+            "y": 1
         },
         "studentsCount": 25,
         "expelledStudents": 1,
@@ -13,14 +13,14 @@
         "semesterEnum": "THIRD",
         "averageMark": 3.5,
         "groupAdmin": {
-            "name": "Елена Козлова",
-            "passportID": "GH901234",
+            "name": "ZXC гуль",
+            "passportID": "GH90123334",
             "eyeColor": "BLACK",
             "hairColor": "BLACK",
             "nationality": "JAPAN",
             "location": {
-                "x": 25,
-                "y": 35.8,
+                "x": 111,
+                "y": 111,
                 "name": "Токио"
             }
         }
@@ -37,7 +37,7 @@
         "shouldBeExpelled": 2,
         "formOfEducation": "FULL_TIME_EDUCATION",
         "semesterEnum": "FIFTH",
-        "averageMark": 4.0,
+        "averageMark": -1,
        "groupAdmin": {
             "name": "Елена",
             "passportID": "GH901234",
