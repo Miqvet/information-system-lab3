@@ -14,6 +14,61 @@
 <div style="text-align: center">
     <h1>Welcome Home!</h1>
     <p>This is your home page.</p>
+    
+    <div th:if="${#authentication.isAuthenticated()}" class="import-history">
+        <h2>Import History</h2>
+        <table class="table-container">
+            <thead>
+                <tr>
+                    <th>File Name</th>
+                    <th>Import Date</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="import : ${importHistory}">
+                    <td th:text="${import.fileName}"></td>
+                    <td th:text="${#temporals.format(import.importDate, 'dd-MM-yyyy HH:mm:ss')}"></td>
+                    <td>
+                        <span th:if="${import.status}" class="success">Success</span>
+                        <span th:unless="${import.status}" class="failure">Failed</span>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
 </div>
+
+<style>
+    .import-history {
+        margin: 20px auto;
+        max-width: 800px;
+    }
+
+    .history-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 10px;
+    }
+
+    .history-table th, .history-table td {
+        padding: 10px;
+        border: 1px solid #ddd;
+    }
+    
+    .history-table th {
+        background-color: #f5f5f5;
+    }
+    
+    .success {
+        color: green;
+        font-weight: bold;
+    }
+    
+    .failure {
+        color: red;
+        font-weight: bold;
+    }
+</style>
 </body>
 </html>

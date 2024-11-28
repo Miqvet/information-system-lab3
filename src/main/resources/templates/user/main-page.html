@@ -63,6 +63,16 @@
             <button type="submit">Find</button>
         </form>
     </div>
+
+    <h3>Import from json file</h3>
+    <form class="import-form" action="/user/import" method="post" enctype="multipart/form-data">
+        <label for="file-upload" class="custom-file-upload">
+            Выберите файл
+        </label>
+        <input id="file-upload" type="file" name="file" accept=".json" style="display: none;" onchange="updateFileName()">
+        <span id="file-name">Файл не выбран</span>
+        <button type="submit">Импортировать</button>
+    </form>
 </div>
 
 <table class="table-container">
@@ -127,11 +137,7 @@
        )}">Next Page</a>
 </div>
 
-<h2>Импорт групп</h2>
-<form action="/user/import" method="post" enctype="multipart/form-data">
-    <input type="file" name="file" accept=".json">
-    <button type="submit">Импортировать</button>
-</form>
+
 
 </body>
 
@@ -186,5 +192,11 @@
     window.onload = function () {
         connect();
     };
+
+    function updateFileName() {
+        const input = document.getElementById('file-upload');
+        const fileName = document.getElementById('file-name');
+        fileName.textContent = input.files.length > 0 ? input.files[0].name : 'Файл не выбран';
+    }
 </script>
 </html>

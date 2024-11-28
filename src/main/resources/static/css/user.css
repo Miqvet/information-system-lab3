@@ -273,6 +273,34 @@ h1 {
     background-color: #379683;
 }
 
+.import-form button{
+    background-color: #05386B; /* Темно-синий */
+    color: #EDF5E1; /* Белый текст */
+    padding: 10px 20px;
+    border: none;
+    cursor: pointer;
+    border-radius: 10px;
+    font-size: 16px;
+    transition: background-color 0.3s ease;
+}
+.custom-file-upload {
+    display: inline-block;
+    padding: 6px 12px;
+    cursor: pointer;
+    border-radius: 5px;
+    background-color: #05386B;
+    color: white;
+    border: none;
+}
+
+.custom-file-upload:hover {
+    background-color:#379683;
+}
+
+.import-form button:hover {
+    background-color: #379683;
+}
+
 
 .side-menu button {
     padding: 10px 15px;

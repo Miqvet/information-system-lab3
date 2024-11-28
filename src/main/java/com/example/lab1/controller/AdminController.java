@@ -4,6 +4,7 @@ import com.example.lab1.domain.entity.Person;
 import com.example.lab1.domain.entity.auth.Role;
 import com.example.lab1.domain.entity.auth.User;
 import com.example.lab1.domain.entity.enums.RoleName;
+import com.example.lab1.repository.ImportHistoryRepository;
 import com.example.lab1.repository.auth.RoleRepository;
 import com.example.lab1.repository.auth.UserRepository;
 import com.example.lab1.service.StudyGroupService;
@@ -29,6 +30,7 @@ public class AdminController {
     private final RoleRepository roleRepository;
     private final UserRepository userRepository;
     private final StudyGroupService studyGroupService;
+    private final ImportHistoryRepository importHistoryRepository;
 
 
     @GetMapping("/approves")
@@ -36,6 +38,7 @@ public class AdminController {
         model.addAttribute(USERNAME_ATTR, session.getAttribute(USERNAME_ATTR));
         model.addAttribute(IS_ADMIN_ATTR, session.getAttribute(IS_ADMIN_ATTR));
         model.addAttribute("requests", userRepository.findByWishToBeAdmin(true));
+        model.addAttribute("allImports", importHistoryRepository.findAll());
         response.setStatus(HttpServletResponse.SC_OK);
         return "admin/index";
     }

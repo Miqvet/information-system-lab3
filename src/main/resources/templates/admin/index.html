@@ -14,25 +14,113 @@
 <h1>Admin Page</h1>
 
 
-<div style="text-align: center;">
-    <h2>Admin role requests</h2>
-    <table style="margin: 0 auto">
-        <tr>
-            <th>Id</th>
-            <th>Login</th>
-            <th>Approve</th>
-        </tr>
-        <tr th:each="user : ${requests}">
-            <td th:text="${user.id}">Username</td>
-            <td th:text="${user.username}">Username</td>
-            <td>
-                <form th:onsubmit="event.preventDefault(); approveAdminRequest([[${user.id}]], this)">
-                    <button type="submit">Approve</button>
-                </form>
-            </td>
-        </tr>
-    </table>
+<div class="admin-panels">
+    <!-- Левая панель с запросами на админку -->
+    <div class="table-container" style="text-align: center">
+        <h2>Admin role requests</h2>
+        <table class="table-container">
+            <thead>
+            <tr>
+                <th>Id</th>
+                <th>Login</th>
+                <th>Approve</th>
+            </tr>
+            </thead>
+        </table>
+        <div class="scroll-table-body">
+            <table class="table-container">
+                <tbody>
+                <tr th:each="user : ${requests}">
+                    <td th:text="${user.id}">Username</td>
+                    <td th:text="${user.username}">Username</td>
+                    <td>
+                        <form th:onsubmit="event.preventDefault(); approveAdminRequest([[${user.id}]], this)">
+                            <button type="submit">Approve</button>
+                        </form>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Правая панель с историей импортов -->
+    <div class="table-container" style="text-align: center">
+        <h2>System Import History</h2>
+        <table class="table-container">
+            <thead>
+            <tr>
+                <th>File Name</th>
+                <th>Import Date</th>
+                <th>Status</th>
+                <th>User</th>
+            </tr>
+            </thead>
+        </table>
+        <div class="scroll-table-body">
+            <table class="table-container">
+                <tbody>
+                <tr th:each="import : ${allImports}">
+                    <td th:text="${import.fileName}"></td>
+                    <td th:text="${#temporals.format(import.importDate, 'dd-MM-yyyy HH:mm:ss')}"></td>
+                    <td>
+                        <span th:if="${import.status}" class="success">Success</span>
+                        <span th:unless="${import.status}" class="failure">Failed</span>
+                    </td>
+                    <td th:text="${import.addedBy.username}"></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
 </div>
+
+<style>
+    .table-container{
+        margin-top: 0; /* Добавим это свойство */
+    }
+    .admin-panels {
+        display: flex;
+        justify-content: space-around;
+        margin: 20px;
+        gap: 20px;
+        align-items: flex-start; /* Добавляем выравнивание по верху */
+    }
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 10px;
+    }
+
+    th, td {
+        padding: 10px;
+        border: 1px ;
+        text-align: left;
+    }
+
+    .success {
+        color: green;
+        font-weight: bold;
+    }
+
+    .failure {
+        color: red;
+        font-weight: bold;
+    }
+
+    button {
+        padding: 5px 10px;
+        background-color: #4CAF50;
+        color: white;
+        border: none;
+        border-radius: 3px;
+        cursor: pointer;
+    }
+
+    button:hover {
+        background-color: #45a049;
+    }
+</style>
 
 
 </body>

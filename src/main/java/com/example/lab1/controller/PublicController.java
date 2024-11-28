@@ -1,8 +1,10 @@
 package com.example.lab1.controller;
 
+import com.example.lab1.domain.entity.ImportHistory;
 import com.example.lab1.domain.entity.auth.Role;
 import com.example.lab1.domain.entity.auth.User;
 import com.example.lab1.domain.entity.enums.RoleName;
+import com.example.lab1.repository.ImportHistoryRepository;
 import com.example.lab1.repository.auth.RoleRepository;
 import com.example.lab1.repository.auth.UserRepository;
 import com.example.lab1.service.UserService;
@@ -23,6 +25,9 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
+import java.security.Principal;
+import java.util.List;
+
 @AllArgsConstructor
 @Controller
 public class PublicController {
@@ -31,14 +36,24 @@ public class PublicController {
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
+    private final ImportHistoryRepository importHistoryRepository;
 
     @GetMapping("/home")
     public String home(HttpSession session, 
                       Model model, 
-                      HttpServletResponse response) {
+                      HttpServletResponse response,
+                      Principal principal) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         var isAdmin = authentication.getAuthorities().stream()
                 .anyMatch(role -> role.getAuthority().equals(ROLE_ADMIN));
+        
+        // Добавляем историю импорта для авторизованного пользователя
+        if (principal != null) {
+            User currentUser = userService.findByUsername(principal.getName());
+            List<ImportHistory> importHistory = importHistoryRepository.findAllByAddedBy(currentUser);
+            model.addAttribute("importHistory", importHistory);
+        }
+        
         model.addAttribute(USERNAME_ATTR, session.getAttribute(USERNAME_ATTR));
         model.addAttribute(IS_ADMIN_ATTR, isAdmin);
         response.setStatus(HttpServletResponse.SC_OK);
@@ -72,7 +87,7 @@ public class PublicController {
                         Model model,
                         HttpServletResponse response) {
         if (userService.existsByUsername(user.getUsername())) {
-            response.setStatus(HttpServletResponse.SC_CONFLICT); // 409 Conflict
+            response.setStatus(HttpServletResponse.SC_CONFLICT);
             result.rejectValue(USERNAME_ATTR, String.valueOf(HttpStatusCode.valueOf(409)), 
                     "Пользователь с таким логином уже существует");
             return REGISTER_PAGE;

@@ -8,12 +8,14 @@ import jakarta.persistence.*;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
+import lombok.Getter;
 import lombok.Setter;
 
 
 @Entity
 @Table(name = "import_history")
 @Setter
+@Getter
 public class ImportHistory implements Serializable {
     
     @Id
