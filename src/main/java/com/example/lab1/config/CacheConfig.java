@@ -14,9 +14,9 @@ import java.util.concurrent.TimeUnit;
 public class CacheConfig {
     @Bean
     public CacheManager cacheManager() {
-        CaffeineCacheManager cacheManager = new CaffeineCacheManager("users");
+        CaffeineCacheManager cacheManager = new CaffeineCacheManager("users", "persons");
         cacheManager.setCaffeine(Caffeine.newBuilder()
-                .expireAfterWrite(15, TimeUnit.MINUTES)
+                .expireAfterWrite(1, TimeUnit.MINUTES)
                 .maximumSize(1000));
         return cacheManager;
     }

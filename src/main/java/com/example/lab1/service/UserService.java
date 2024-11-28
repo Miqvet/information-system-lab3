@@ -26,9 +26,9 @@ public class UserService implements UserDetailsService {
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
     }
 
-    @CacheEvict(value = "users", key = "#user.username")
+    @Cacheable(value = "users", key = "#user.username")
     public UserDetails save(User user) {
-        System.out.println("Вызвали save");
+        System.out.println("Пошло сохранение нового юзера");
         return userRepository.save(user);
     }
 

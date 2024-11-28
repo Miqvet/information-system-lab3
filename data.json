@@ -1,0 +1,106 @@
+[
+    {
+        "name": "Группа Альфа1",
+        "coordinates": {
+            "x": 100,
+            "y": 200
+        },
+        "studentsCount": 25,
+        "expelledStudents": 1,
+        "transferredStudents": 1,
+        "shouldBeExpelled": 3,
+        "formOfEducation": "DISTANCE_EDUCATION",
+        "semesterEnum": "THIRD",
+        "averageMark": 3.5,
+        "groupAdmin": {
+            "name": "Елена Козлова",
+            "passportID": "GH901234",
+            "eyeColor": "BLACK",
+            "hairColor": "BLACK",
+            "nationality": "JAPAN",
+            "location": {
+                "x": 25,
+                "y": 35.8,
+                "name": "Токио"
+            }
+        }
+    },
+    {
+        "name": "Группа Бета2",
+        "coordinates": {
+            "x": -200,
+            "y": 150
+        },
+        "studentsCount": 30,
+        "expelledStudents": 1,
+        "transferredStudents": 1,
+        "shouldBeExpelled": 2,
+        "formOfEducation": "FULL_TIME_EDUCATION",
+        "semesterEnum": "FIFTH",
+        "averageMark": 4.0,
+       "groupAdmin": {
+            "name": "Елена Козлова",
+            "passportID": "GH901234",
+            "eyeColor": "BLACK",
+            "hairColor": "BLACK",
+            "nationality": "JAPAN",
+            "location": {
+                "x": 25,
+                "y": 35.8,
+                "name": "Токио"
+            }
+        }
+    },
+    {
+        "name": "Группа Гамма3",
+        "coordinates": {
+            "x": 300,
+            "y": -100
+        },
+        "studentsCount": 20,
+        "expelledStudents": 1,
+        "transferredStudents": 1,
+        "shouldBeExpelled": 1,
+        "formOfEducation": "EVENING_CLASSES",
+        "semesterEnum": "SEVENTH",
+        "averageMark": 4.5,
+       "groupAdmin": {
+            "name": "Елена Козлова",
+            "passportID": "GH901234",
+            "eyeColor": "BLACK",
+            "hairColor": "BLACK",
+            "nationality": "JAPAN",
+            "location": {
+                "x": 251,
+                "y": 35.8,
+                "name": "Токио"
+            }
+        }
+    },
+    {
+        "name": "Группа Дельта4",
+        "coordinates": {
+            "x": -150,
+            "y": 250
+        },
+        "studentsCount": 35,
+        "expelledStudents": 1,
+        "transferredStudents": 1,
+        "shouldBeExpelled": 4,
+        "formOfEducation": "DISTANCE_EDUCATION",
+        "semesterEnum": "EIGHTH",
+        "averageMark": 3.8,
+        "groupAdmin": {
+            "name": "Елена Козлова",
+            "passportID": "GH901234",
+            "eyeColor": "BLACK",
+            "hairColor": "BLACK",
+            "nationality": "JAPAN",
+            "location": {
+                "x": 25,
+                "y": 35.8,
+                "name": "Токио"
+            }
+        }
+    }
+]

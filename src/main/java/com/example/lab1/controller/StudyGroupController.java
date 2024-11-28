@@ -7,10 +7,12 @@ import com.example.lab1.domain.entity.enums.Color;
 import com.example.lab1.domain.entity.enums.Country;
 import com.example.lab1.domain.entity.enums.FormOfEducation;
 import com.example.lab1.domain.entity.enums.Semester;
+import com.example.lab1.service.ImportService;
 import com.example.lab1.service.PersonService;
 import com.example.lab1.service.StudyGroupService;
 import com.example.lab1.service.UserService;
 import static com.example.lab1.common.AppConstants.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
@@ -37,6 +39,7 @@ public class StudyGroupController {
     private final UserService userService;
     private final PersonService personService;
     private final WebSocketController webSocketController;
+    private final ImportService importService;
 
 
     @GetMapping("/user")
@@ -115,6 +118,7 @@ public class StudyGroupController {
         studyGroup.setCreatedBy(currentUser);
         studyGroupService.save(studyGroup);
         webSocketController.notifyClients(CREATE_MESSAGE);
+
         return REDIRECT_USER;
 
     }
@@ -242,6 +246,18 @@ public class StudyGroupController {
         return ResponseEntity.ok(studyGroups);
     }
 
+
+    @PostMapping("/user/import")
+    public String importStudyGroups(@RequestParam("file") MultipartFile file, Model model) {
+        try {
+            importService.importStudyGroupsFromJson(file);
+            model.addAttribute("message", "Импорт успешно завершен");
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            model.addAttribute("error", "Ошибка при импорте: " + e.getMessage());
+        }
+        return "redirect:/user";
+    }
 
     private void createFullModel(Model model){
         model.addAttribute("formOfEducationEnum", FormOfEducation.values());

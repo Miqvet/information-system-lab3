@@ -2,10 +2,12 @@ package com.example.lab1.service;
 
 import com.example.lab1.domain.entity.Person;
 import com.example.lab1.repository.PersonRepository;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Optional;
 
 @Service
 public class PersonService {
@@ -54,6 +56,18 @@ public class PersonService {
             throw new IllegalArgumentException("У данного админа есть группы");
         }
         personRepository.deleteById(id);
+    }
+
+     @Cacheable(value = "persons", key = "#person.passportID + #person.name + #person.eyeColor + #person.hairColor + #person.nationality + #person.location.name +  #person.location.x + #person.location.y")
+    public Optional<Person> findExistingPerson(Person person) {
+        Optional<Person> existingPerson = personRepository.findByPassportID(person.getPassportID());
+        System.out.println(existingPerson.get());
+        System.out.println(person);
+        System.out.println(existingPerson.get().equals(person));
+        if (existingPerson.isPresent() && existingPerson.get().equals(person)) {
+            return existingPerson;
+        }
+        return Optional.empty();
     }
 
 }

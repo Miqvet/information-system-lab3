@@ -4,10 +4,14 @@ import com.example.lab1.domain.dto.JwtAuthenticationResponse;
 import com.example.lab1.domain.dto.SignRequest;
 import com.example.lab1.domain.entity.StudyGroup;
 import com.example.lab1.service.AuthenticationService;
+import com.example.lab1.service.ImportService;
 import com.example.lab1.service.StudyGroupService;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
+
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -17,6 +21,7 @@ import java.util.List;
 public class RESTControllerForTest {
     private final AuthenticationService authenticationService;
     private final StudyGroupService studyGroupService;
+    private final ImportService importService;
 
     @PostMapping("/sign-up")
     public JwtAuthenticationResponse signUp(@RequestBody @Valid SignRequest request) {
@@ -31,5 +36,15 @@ public class RESTControllerForTest {
     @GetMapping("/groups")
     public List<StudyGroup> getAllGroups() {
         return studyGroupService.findAll();
+    }
+
+    @PostMapping("/study-groups")
+    public ResponseEntity<String> importStudyGroups(@RequestParam("file") MultipartFile file) {
+        try {
+            importService.importStudyGroupsFromJson(file);
+            return ResponseEntity.ok("Импорт успешно завершен");
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Ошибка при импорте: " + e.getMessage());
+        }
     }
 }

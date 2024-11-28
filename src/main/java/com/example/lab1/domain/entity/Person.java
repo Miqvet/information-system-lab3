@@ -11,6 +11,7 @@ import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
 import java.io.Serializable;
+import java.util.Objects;
 @Entity
 @Data
 @Table(name = "person")
@@ -53,4 +54,24 @@ public class Person implements Serializable {
 
     @NotNull
     private boolean canBeChanged = true; 
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Person person = (Person) o;
+        return eyeColor == person.eyeColor &&
+               hairColor == person.hairColor &&
+               nationality == person.nationality &&
+               Objects.equals(passportID, person.passportID) &&
+               Objects.equals(name, person.name) &&
+               Objects.equals(location.getX(), person.location.getX()) &&
+               Objects.equals(location.getY(), person.location.getY()) &&
+               Objects.equals(location.getName(), person.location.getName());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(passportID, name, eyeColor, hairColor, nationality, location.getX(), location.getY(), location.getName());
+    }
 }
