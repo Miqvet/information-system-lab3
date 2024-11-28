@@ -1,15 +1,18 @@
 package com.example.lab1.service;
 import com.example.lab1.domain.entity.Person;
 import com.example.lab1.domain.entity.StudyGroup;
+import com.example.lab1.domain.entity.auth.User;
 import com.example.lab1.repository.StudyGroupRepository;
 import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
