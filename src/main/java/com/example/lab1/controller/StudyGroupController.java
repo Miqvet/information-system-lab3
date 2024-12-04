@@ -120,9 +120,8 @@ public class StudyGroupController {
         studyGroup.setCreatedBy(currentUser);
         studyGroupService.save(studyGroup);
         webSocketController.notifyClients(CREATE_MESSAGE);
-
-        return REDIRECT_USER;
-
+//        return REDIRECT_USER;
+        return "redirect:/user/create";
     }
 
     @GetMapping("/user/group/edit/{id}")
@@ -197,8 +196,10 @@ public class StudyGroupController {
 
         studyGroupService.update(studyGroupId, studyGroup);
         webSocketController.notifyClients(EDIT_MESSAGE + studyGroupId);
-        return REDIRECT_USER;
+//        return REDIRECT_USER;
+        return "redirect:/user/group/edit/" + id;
     }
+
     @GetMapping("/user/group/delete/{id}")
     public String getDeleteStudyGroup(@PathVariable String id,
                                       Principal principal,
@@ -252,10 +253,13 @@ public class StudyGroupController {
     @PostMapping("/user/import")
     public String importStudyGroups(@RequestParam("file") MultipartFile file, Model model) {
         try {
-            importService.importStudyGroupsFromJson(file);
+            long savedCount = importService.saveDataFromFile(file);
+            importService.saveImportHistory(file, savedCount);
+            System.out.println("Импорт успешно завершен");
             model.addAttribute("message", "Импорт успешно завершен");
         } catch (Exception e) {
-            System.out.println(e.getMessage());
+            importService.saveImportHistory(file,  0);
+            System.out.println("Ошибка при импорте: " + e.getMessage());
             model.addAttribute("error", "Ошибка при импорте: " + e.getMessage());
         }
         return "redirect:/user";

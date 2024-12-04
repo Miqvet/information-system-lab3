@@ -40,7 +40,8 @@ public class Person implements Serializable {
 
     @Valid
     @NotNull(message = "Локация не может быть null")
-    @OneToOne(cascade = CascadeType.ALL)
+    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JoinColumn(name = "location_id")
     private Location location;
 
     @NotNull(message = "Национальность не может быть null")

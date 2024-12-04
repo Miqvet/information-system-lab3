@@ -41,9 +41,11 @@ public class RESTControllerForTest {
     @PostMapping("/study-groups")
     public ResponseEntity<String> importStudyGroups(@RequestParam("file") MultipartFile file) {
         try {
-            importService.importStudyGroupsFromJson(file);
-            return ResponseEntity.ok("Импорт успешно завершен");
+            long savedCount = importService.saveDataFromFile(file);
+            importService.saveImportHistory(file, savedCount);
+            return ResponseEntity.ok("Импорт успешно завершен. Сохранено " + savedCount + " элементов.");
         } catch (Exception e) {
+            importService.saveImportHistory(file,  0);
             return ResponseEntity.badRequest().body("Ошибка при импорте: " + e.getMessage());
         }
     }

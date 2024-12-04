@@ -27,7 +27,7 @@ public class StudyGroup implements Serializable {
 
     @Valid
     @NotNull(message = "Координаты не могут быть null")
-    @OneToOne(cascade = CascadeType.ALL)
+    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Coordinates coordinates;
 
     @Temporal(TemporalType.TIMESTAMP)

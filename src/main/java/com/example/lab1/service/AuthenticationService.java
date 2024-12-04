@@ -10,7 +10,8 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Transactional;
 import static com.example.lab1.domain.entity.enums.RoleName.ROLE_USER;
 
 @Service
@@ -22,6 +23,7 @@ public class AuthenticationService {
     private final AuthenticationManager authenticationManager;
     private final RoleRepository roleRepository;
 
+    @Transactional(isolation = Isolation.REPEATABLE_READ)
     public JwtAuthenticationResponse signUp(SignRequest request) {
         var user = new User();
         Role userRole = roleRepository.findByName(ROLE_USER).orElseThrow(() -> new RuntimeException("Role not found"));

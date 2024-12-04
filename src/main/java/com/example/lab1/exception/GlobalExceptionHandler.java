@@ -5,10 +5,15 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.ConstraintViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.servlet.ModelAndView;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.dao.CannotAcquireLockException;
+import org.springframework.dao.PessimisticLockingFailureException;
+import org.springframework.transaction.TransactionException;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -67,10 +72,41 @@ public class GlobalExceptionHandler {
         return modelAndView;
     }
 
+    @ExceptionHandler({
+        TransactionException.class,
+        PessimisticLockingFailureException.class,
+        CannotAcquireLockException.class
+    })
+    public ModelAndView handleTransactionException(Exception e, HttpServletResponse response) {
+        ModelAndView modelAndView = new ModelAndView("error/conflict");
+        modelAndView.addObject("errorMessage", "Конфликт при параллельном доступе: " +
+            "Объект был изменен другим пользователем. Пожалуйста, попробуйте снова.");
+        response.setStatus(HttpStatus.CONFLICT.value());
+        return modelAndView;
+    }
+
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ModelAndView handleDataIntegrityViolation(DataIntegrityViolationException e, 
+                                                    HttpServletResponse response) {
+        ModelAndView modelAndView = new ModelAndView("error/conflict");
+        String message = "Ошибка целостности данных: ";
+        
+        if (e.getCause() instanceof ConstraintViolationException) {
+            message += "Нарушение ограничений базы данных";
+        } else if (e.getMessage().contains("параллельного изменения")) {
+            message += "Конфликт при параллельном доступе. Пожалуйста, попробуйте снова";
+        } else {
+            message += e.getMessage();
+        }
+        
+        modelAndView.addObject("errorMessage", message);
+        response.setStatus(HttpStatus.CONFLICT.value());
+        return modelAndView;
+    }
     @ExceptionHandler(Exception.class)
     public ModelAndView handleGeneralException(Exception e, HttpServletResponse response) {
         ModelAndView modelAndView = new ModelAndView("error/bad-request");
-        modelAndView.addObject("errorMessage", "Произошла ошибка: " + e.getMessage());
+        modelAndView.addObject("errorMessage", "Произошла ошибка: " + e.getMessage() + "\n" + e.getClass());
         response.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
         return modelAndView;
     }

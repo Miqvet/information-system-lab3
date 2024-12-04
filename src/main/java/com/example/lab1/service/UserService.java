@@ -3,14 +3,16 @@ package com.example.lab1.service;
 
 import com.example.lab1.domain.entity.auth.User;
 import com.example.lab1.repository.auth.UserRepository;
-import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
+@Transactional(readOnly = true)
 public class UserService implements UserDetailsService {
     private final UserRepository userRepository;
     
@@ -26,6 +28,7 @@ public class UserService implements UserDetailsService {
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
     }
 
+    @Transactional
     @Cacheable(value = "users", key = "#user.username")
     public UserDetails save(User user) {
         System.out.println("Пошло сохранение нового юзера");
@@ -41,6 +44,7 @@ public class UserService implements UserDetailsService {
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
     }
 
+    @Transactional(isolation = Isolation.REPEATABLE_READ)
     public UserDetails create(User user) {
         if (userRepository.existsByUsername(user.getUsername())) {
             throw new RuntimeException("Пользователь с таким именем уже существует");

@@ -1,53 +1,105 @@
 [
     {
-        "name": "1111",
+        "name": "PP3333",
         "coordinates": {
-            "x": 1,
-            "y": 1
+            "x": 112,
+            "y": 112
         },
-        "studentsCount": 25,
-        "expelledStudents": 1,
-        "transferredStudents": 1,
-        "shouldBeExpelled": 3,
+        "studentsCount": 27,
+        "expelledStudents": 3,
+        "transferredStudents": 2,
+        "shouldBeExpelled": 4,
         "formOfEducation": "DISTANCE_EDUCATION",
         "semesterEnum": "THIRD",
-        "averageMark": 3.5,
+        "averageMark": 1,
         "groupAdmin": {
-            "name": "ZXC гуль",
-            "passportID": "GH90123334",
-            "eyeColor": "BLACK",
+            "name": "Соколов",
+            "passportID": "023AB12345",
+            "eyeColor": "GREEN",
             "hairColor": "BLACK",
-            "nationality": "JAPAN",
+            "nationality": "GERMANY",
             "location": {
-                "x": 111,
-                "y": 111,
-                "name": "Токио"
+                "x": 45,
+                "y": 55.5,
+                "name": "Мюнхен"
             }
         }
     },
     {
-        "name": "2222",
+        "name": "M3216",
         "coordinates": {
-            "x": -200,
-            "y": 150
+            "x": -150,
+            "y": 200
         },
-        "studentsCount": 30,
-        "expelledStudents": 1,
+        "studentsCount": 29,
+        "expelledStudents": 2,
         "transferredStudents": 1,
-        "shouldBeExpelled": 2,
+        "shouldBeExpelled": 3,
         "formOfEducation": "FULL_TIME_EDUCATION",
         "semesterEnum": "FIFTH",
-        "averageMark": -1,
-       "groupAdmin": {
-            "name": "Елена",
-            "passportID": "GH901234",
+        "averageMark": 4.6,
+        "groupAdmin": {
+            "name": "София Дюпон",
+            "passportID": "2023FR98765",
+            "eyeColor": "BLACK",
+            "hairColor": "WHITE",
+            "nationality": "FRANCE",
+            "location": {
+                "x": 30,
+                "y": 40.8,
+                "name": "Лион"
+            }
+        }
+    },
+    {
+        "name": "K3317",
+        "coordinates": {
+            "x": 250,
+            "y": 350
+        },
+        "studentsCount": 31,
+        "expelledStudents": 4,
+        "transferredStudents": 2,
+        "shouldBeExpelled": 5,
+        "formOfEducation": "EVENING_CLASSES",
+        "semesterEnum": "SEVENTH",
+        "averageMark": 4.4,
+        "groupAdmin": {
+            "name": "Хироши Сато",
+            "passportID": "2023JP24680",
             "eyeColor": "BLACK",
             "hairColor": "BLACK",
             "nationality": "JAPAN",
             "location": {
-                "x": 25,
-                "y": 35.8,
-                "name": "Токио"
+                "x": 75,
+                "y": 85.3,
+                "name": "Осака"
+            }
+        }
+    },
+    {
+        "name": "R3418",
+        "coordinates": {
+            "x": -120,
+            "y": 280
+        },
+        "studentsCount": 26,
+        "expelledStudents": 1,
+        "transferredStudents": 3,
+        "shouldBeExpelled": 2,
+        "formOfEducation": "DISTANCE_EDUCATION",
+        "semesterEnum": "EIGHTH",
+        "averageMark": 4.7,
+        "groupAdmin": {
+            "name": "Чжан Мин",
+            "passportID": "2023CN13579",
+            "eyeColor": "BLACK",
+            "hairColor": "BLACK",
+            "nationality": "CHINA",
+            "location": {
+                "x": 110,
+                "y": 140.7,
+                "name": "Шанхай"
             }
         }
     }

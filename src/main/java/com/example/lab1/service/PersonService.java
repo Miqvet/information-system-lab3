@@ -4,12 +4,14 @@ import com.example.lab1.domain.entity.Person;
 import com.example.lab1.repository.PersonRepository;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 
 @Service
+@Transactional(readOnly = true)
 public class PersonService {
 
     private final PersonRepository personRepository;
@@ -21,14 +23,14 @@ public class PersonService {
     }
 
     public List<Person> findAll() {
-        return personRepository.findAll();
+        return personRepository.findAllWithLocation();
     }
 
     public Person getById(Long id) throws NoSuchElementException{
         return personRepository.findById(id).orElseThrow(()->new NoSuchElementException("Person with id " + id + " not found"));
     }
 
-
+    @Transactional
     public void savePerson(Person person) throws IllegalArgumentException {
         if (personRepository.existsByPassportID(person.getPassportID())) {
             throw new IllegalArgumentException("Человек с таким passportID уже существует");
@@ -36,6 +38,7 @@ public class PersonService {
         personRepository.save(person);
     }
 
+    @Transactional
     public void update(long id, Person person) {
         Person existingPerson = personRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("Person with id " + id + " not found"));
@@ -51,6 +54,7 @@ public class PersonService {
         existingPerson.setNationality(person.getNationality());
         personRepository.save(existingPerson);
     }
+    @Transactional
     public void deleteById(long id) {
         if(studyGroupService.countThereGroupAdmin(id) != 0){
             throw new IllegalArgumentException("У данного админа есть группы");
@@ -61,9 +65,6 @@ public class PersonService {
     @Cacheable(value = "persons", key = "#person.passportID + #person.name + #person.eyeColor + #person.hairColor + #person.nationality + #person.location.name +  #person.location.x + #person.location.y")
     public Optional<Person> findExistingPerson(Person person) {
         Optional<Person> existingPerson = personRepository.findByPassportID(person.getPassportID());
-        System.out.println(existingPerson.get());
-        System.out.println(person);
-        System.out.println(existingPerson.get().equals(person));
         if (existingPerson.isPresent() && existingPerson.get().equals(person)) {
             return existingPerson;
         }

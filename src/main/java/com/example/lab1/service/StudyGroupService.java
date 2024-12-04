@@ -3,10 +3,13 @@ import com.example.lab1.domain.entity.Person;
 import com.example.lab1.domain.entity.StudyGroup;
 import com.example.lab1.domain.entity.auth.User;
 import com.example.lab1.repository.StudyGroupRepository;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collections;
@@ -16,6 +19,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
+@Transactional(readOnly = true)
 public class StudyGroupService {
 
     private final StudyGroupRepository studyGroupRepository;
@@ -23,24 +27,32 @@ public class StudyGroupService {
     public StudyGroupService(StudyGroupRepository studyGroupRepository) {
         this.studyGroupRepository = studyGroupRepository;
     }
-
+    @Cacheable(value = "studyGroups", key = "'all'")
     public List<StudyGroup> findAll() {
         return studyGroupRepository.findAll();
     }
 
+    @Cacheable(value = "studyGroups", key = "#id")
     public StudyGroup getById(int id) throws NoSuchElementException {
-        return studyGroupRepository.findById(id).orElseThrow(() -> new NoSuchElementException("Group " + id + " not found"));
+        return studyGroupRepository.findById(id)
+            .orElseThrow(() -> new NoSuchElementException("Group " + id + " not found"));
     }
 
+    @Transactional(isolation = Isolation.REPEATABLE_READ)
+    @CacheEvict(value = "studyGroups", allEntries = true)
     public void save(StudyGroup studyGroup) throws DataIntegrityViolationException {
         studyGroupRepository.save(studyGroup);
     }
 
+    @Transactional
+    @CacheEvict(value = "studyGroups", allEntries = true)
     public void deleteById(int id) {
         studyGroupRepository.deleteById(id);
     }
 
-    public void update(int id, StudyGroup updatedStudyGroup) throws NoSuchElementException{
+    @Transactional(isolation = Isolation.REPEATABLE_READ)
+    @CacheEvict(value = "studyGroups", allEntries = true)
+    public void update(int id, StudyGroup updatedStudyGroup) throws NoSuchElementException {
         StudyGroup existingStudyGroup = studyGroupRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("StudyGroup with id " + id + " not found"));
         existingStudyGroup.setName(updatedStudyGroup.getName());
@@ -56,8 +68,9 @@ public class StudyGroupService {
         studyGroupRepository.save(existingStudyGroup); // Сохраняем обновленный объект
     }
 
+    @Cacheable(value = "studyGroups", key = "'filtered:' + #filterField + ':' + #filterValue + ':' + #sortBy + ':' + #page + ':' + #pageSize")
     public Page<StudyGroup> findFilteredAndSorted(int page, int pageSize, String filterField, String filterValue, String sortBy) {
-        List<StudyGroup> allGroups = studyGroupRepository.findAll();
+        List<StudyGroup> allGroups = findAll();
 
         // Фильтрация
         List<StudyGroup> filteredGroups = allGroups;
@@ -139,6 +152,8 @@ public class StudyGroupService {
                 .collect(Collectors.toList());
     }
 
+    @Transactional
+    @CacheEvict(value = "studyGroups", allEntries = true)
     public void expelGroupStudents(int groupId) throws NoSuchElementException {
         StudyGroup group = studyGroupRepository.findById(groupId).orElseThrow();
         group.setExpelledStudents((group.getStudentsCount() + group.getExpelledStudents()));
@@ -147,6 +162,8 @@ public class StudyGroupService {
         studyGroupRepository.save(group);
     }
 
+    @Transactional
+    @CacheEvict(value = "studyGroups", allEntries = true)
     public void transferStudents(int fromGroupId, int toGroupId) {
         StudyGroup fromGroup = studyGroupRepository.findById(fromGroupId).orElseThrow();
         StudyGroup toGroup = studyGroupRepository.findById(toGroupId).orElseThrow();
