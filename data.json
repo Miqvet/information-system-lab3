@@ -1,9 +1,9 @@
 [
     {
-        "name": "PP3333",
+        "name": "ASD",
         "coordinates": {
-            "x": 112,
-            "y": 112
+            "x": 0,
+            "y": 0
         },
         "studentsCount": 27,
         "expelledStudents": 3,
@@ -11,25 +11,25 @@
         "shouldBeExpelled": 4,
         "formOfEducation": "DISTANCE_EDUCATION",
         "semesterEnum": "THIRD",
-        "averageMark": 1,
+        "averageMark": 2,
         "groupAdmin": {
-            "name": "Соколов",
-            "passportID": "023AB12345",
+            "name": "AAAAA",
+            "passportID": "23CAB12345",
             "eyeColor": "GREEN",
             "hairColor": "BLACK",
             "nationality": "GERMANY",
             "location": {
-                "x": 45,
-                "y": 55.5,
-                "name": "Мюнхен"
+                "x": -12,
+                "y": -12,
+                "name": "СМюнхен"
             }
         }
     },
     {
-        "name": "M3216",
+        "name": "2222",
         "coordinates": {
-            "x": -150,
-            "y": 200
+            "x": 333,
+            "y": 333
         },
         "studentsCount": 29,
         "expelledStudents": 2,
@@ -37,9 +37,9 @@
         "shouldBeExpelled": 3,
         "formOfEducation": "FULL_TIME_EDUCATION",
         "semesterEnum": "FIFTH",
-        "averageMark": 4.6,
+        "averageMark": -4.6,
         "groupAdmin": {
-            "name": "София Дюпон",
+            "name": "СXофия Дюпон",
             "passportID": "2023FR98765",
             "eyeColor": "BLACK",
             "hairColor": "WHITE",
@@ -52,7 +52,7 @@
         }
     },
     {
-        "name": "K3317",
+        "name": "2222",
         "coordinates": {
             "x": 250,
             "y": 350
@@ -78,7 +78,7 @@
         }
     },
     {
-        "name": "R3418",
+        "name": "1111",
         "coordinates": {
             "x": -120,
             "y": 280

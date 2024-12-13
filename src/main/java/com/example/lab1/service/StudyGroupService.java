@@ -1,7 +1,6 @@
 package com.example.lab1.service;
 import com.example.lab1.domain.entity.Person;
 import com.example.lab1.domain.entity.StudyGroup;
-import com.example.lab1.domain.entity.auth.User;
 import com.example.lab1.repository.StudyGroupRepository;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
@@ -12,16 +11,14 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.Optional;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
 @Transactional(readOnly = true)
 public class StudyGroupService {
-
     private final StudyGroupRepository studyGroupRepository;
 
     public StudyGroupService(StudyGroupRepository studyGroupRepository) {
@@ -41,7 +38,12 @@ public class StudyGroupService {
     @Transactional(isolation = Isolation.REPEATABLE_READ)
     @CacheEvict(value = "studyGroups", allEntries = true)
     public void save(StudyGroup studyGroup) throws DataIntegrityViolationException {
-        studyGroupRepository.save(studyGroup);
+        if(studyGroupRepository.existsByName(studyGroup.getName())) {
+            studyGroup.setName(studyGroup.getName() + " " + generateUniqueId(LocalDateTime.now()));
+            studyGroupRepository.saveAndFlush(studyGroup);
+        }else{
+            studyGroupRepository.saveAndFlush(studyGroup);
+        }
     }
 
     @Transactional
@@ -55,17 +57,43 @@ public class StudyGroupService {
     public void update(int id, StudyGroup updatedStudyGroup) throws NoSuchElementException {
         StudyGroup existingStudyGroup = studyGroupRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("StudyGroup with id " + id + " not found"));
-        existingStudyGroup.setName(updatedStudyGroup.getName());
-        existingStudyGroup.setCoordinates(updatedStudyGroup.getCoordinates());
-        existingStudyGroup.setStudentsCount(updatedStudyGroup.getStudentsCount());
-        existingStudyGroup.setExpelledStudents(updatedStudyGroup.getExpelledStudents());
-        existingStudyGroup.setTransferredStudents(updatedStudyGroup.getTransferredStudents());
-        existingStudyGroup.setFormOfEducation(updatedStudyGroup.getFormOfEducation());
-        existingStudyGroup.setShouldBeExpelled(updatedStudyGroup.getShouldBeExpelled());
-        existingStudyGroup.setAverageMark(updatedStudyGroup.getAverageMark());
-        existingStudyGroup.setSemesterEnum(updatedStudyGroup.getSemesterEnum());
-        existingStudyGroup.setGroupAdmin(updatedStudyGroup.getGroupAdmin());
-        studyGroupRepository.save(existingStudyGroup); // Сохраняем обновленный объект
+        System.out.println(existingStudyGroup);
+        List<StudyGroup> allNamedGroups = studyGroupRepository.getStudyGroupsByName(updatedStudyGroup.getName());
+        if(studyGroupRepository.existsByName(updatedStudyGroup.getName()) &&
+            allNamedGroups.size() >= 1 && allNamedGroups.get(0).getId() != id)
+            existingStudyGroup.setName(updatedStudyGroup.getName() + " " + generateUniqueId(LocalDateTime.now()));
+        else existingStudyGroup.setName(updatedStudyGroup.getName());
+        if(!Objects.equals(existingStudyGroup.getCoordinates().getX(), updatedStudyGroup.getCoordinates().getX())) {
+            existingStudyGroup.getCoordinates().setX(updatedStudyGroup.getCoordinates().getX());
+        }
+        if(!Objects.equals(existingStudyGroup.getCoordinates().getY(), updatedStudyGroup.getCoordinates().getY())){
+            existingStudyGroup.getCoordinates().setY(updatedStudyGroup.getCoordinates().getY());
+        }
+        if(!Objects.equals(existingStudyGroup.getStudentsCount(), updatedStudyGroup.getStudentsCount())){
+            existingStudyGroup.setStudentsCount(updatedStudyGroup.getStudentsCount());
+        }
+        if(!Objects.equals(existingStudyGroup.getExpelledStudents(), updatedStudyGroup.getExpelledStudents())){
+            existingStudyGroup.setExpelledStudents(updatedStudyGroup.getExpelledStudents());
+        }
+        if(!Objects.equals(existingStudyGroup.getTransferredStudents(), updatedStudyGroup.getTransferredStudents())){
+            existingStudyGroup.setTransferredStudents(updatedStudyGroup.getTransferredStudents());
+        }
+        if(existingStudyGroup.getFormOfEducation() != updatedStudyGroup.getFormOfEducation()){
+            existingStudyGroup.setFormOfEducation(updatedStudyGroup.getFormOfEducation());
+        }
+        if(!Objects.equals(existingStudyGroup.getShouldBeExpelled(), updatedStudyGroup.getShouldBeExpelled())){
+            existingStudyGroup.setShouldBeExpelled(updatedStudyGroup.getShouldBeExpelled());
+        }
+        if(existingStudyGroup.getAverageMark() != updatedStudyGroup.getAverageMark()){
+            existingStudyGroup.setAverageMark(updatedStudyGroup.getAverageMark());
+        }
+        if(existingStudyGroup.getSemesterEnum() != updatedStudyGroup.getSemesterEnum()){
+            existingStudyGroup.setSemesterEnum(updatedStudyGroup.getSemesterEnum());
+        }
+        if(existingStudyGroup.getGroupAdmin() != updatedStudyGroup.getGroupAdmin()){
+            existingStudyGroup.setGroupAdmin(updatedStudyGroup.getGroupAdmin());
+        }
+        System.out.println(existingStudyGroup);
     }
 
     @Cacheable(value = "studyGroups", key = "'filtered:' + #filterField + ':' + #filterValue + ':' + #sortBy + ':' + #page + ':' + #pageSize")
@@ -187,5 +215,9 @@ public class StudyGroupService {
                 .count();
         System.out.println(count);
         return count;
+    }
+    public static String generateUniqueId(LocalDateTime dateTime) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
+        return dateTime.format(formatter) + dateTime.getNano();
     }
 }

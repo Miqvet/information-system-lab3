@@ -75,6 +75,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler({
         TransactionException.class,
         PessimisticLockingFailureException.class,
+        ObjectOptimisticLockingFailureException.class,
         CannotAcquireLockException.class
     })
     public ModelAndView handleTransactionException(Exception e, HttpServletResponse response) {

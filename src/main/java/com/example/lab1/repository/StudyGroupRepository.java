@@ -4,6 +4,9 @@ import com.example.lab1.domain.entity.StudyGroup;
 
 import java.util.List;
 
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -15,6 +18,9 @@ public interface StudyGroupRepository extends JpaRepository<StudyGroup, Integer>
 
     long countByShouldBeExpelledLessThan(int shouldBeExpelled);
     long countByShouldBeExpelledGreaterThan(int shouldBeExpelled);
+
+    boolean existsByName(String name);
+    List<StudyGroup> getStudyGroupsByName(String string);
 
     @Query("SELECT DISTINCT sg FROM StudyGroup sg " +
     "LEFT JOIN FETCH sg.coordinates " +

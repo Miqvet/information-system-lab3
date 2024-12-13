@@ -31,7 +31,7 @@
             <table class="table-container">
                 <tbody>
                 <tr th:each="user : ${requests}">
-                    <td th:text="${user.id}">Username</td>
+                    <td th:text="${user.id}">UserID</td>
                     <td th:text="${user.username}">Username</td>
                     <td>
                         <form th:onsubmit="event.preventDefault(); approveAdminRequest([[${user.id}]], this)">
@@ -53,7 +53,9 @@
                 <th>File Name</th>
                 <th>Import Date</th>
                 <th>Status</th>
+                <th>Count Elements</th>
                 <th>User</th>
+
             </tr>
             </thead>
         </table>
@@ -67,6 +69,7 @@
                         <span th:if="${import.status}" class="success">Success</span>
                         <span th:unless="${import.status}" class="failure">Failed</span>
                     </td>
+                    <td th:text="${import.countElement}"></td>
                     <td th:text="${import.addedBy.username}"></td>
                 </tr>
                 </tbody>

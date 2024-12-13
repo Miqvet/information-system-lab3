@@ -23,6 +23,7 @@
                     <th>File Name</th>
                     <th>Import Date</th>
                     <th>Status</th>
+                    <th>Elements count</th>
                 </tr>
             </thead>
             <tbody>
@@ -33,6 +34,7 @@
                         <span th:if="${import.status}" class="success">Success</span>
                         <span th:unless="${import.status}" class="failure">Failed</span>
                     </td>
+                    <td th:text="${import.countElement}"></td>
                 </tr>
             </tbody>
         </table>

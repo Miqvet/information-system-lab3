@@ -31,6 +31,9 @@ public class ImportHistory implements Serializable {
     @NotNull
     private LocalDateTime importDate;
 
+    @NotNull
+    private long countElement;
+
     @Valid
     @ManyToOne
     @JoinColumn(name = "user_id")

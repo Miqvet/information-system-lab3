@@ -1,5 +1,6 @@
 package com.example.lab1.controller;
 
+import com.example.lab1.config.LockProvider;
 import com.example.lab1.domain.entity.StudyGroup;
 import com.example.lab1.domain.entity.ImportHistory;
 import com.example.lab1.domain.entity.Person;
@@ -31,6 +32,7 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.security.Principal;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -43,6 +45,7 @@ public class StudyGroupController {
     private final WebSocketController webSocketController;
     private final ImportService importService;
 
+    private final LockProvider lockProvider;
 
     @GetMapping("/user")
     public String userPage(HttpSession session, Model model,
@@ -89,8 +92,6 @@ public class StudyGroupController {
         model.addAttribute("sortBy", sortBy);
 
         return "user/main-page";
-
-
     }
 
     @GetMapping("/user/create")
@@ -116,11 +117,16 @@ public class StudyGroupController {
             model.addAttribute(PERSON_ATTR, new Person());
             return CREATE_EDIT_PAGE;
         }
-        User currentUser = userService.findByUsername(principal.getName());
-        studyGroup.setCreatedBy(currentUser);
-        studyGroupService.save(studyGroup);
-        webSocketController.notifyClients(CREATE_MESSAGE);
-//        return REDIRECT_USER;
+        try{
+            lockProvider.getReentLock().lock();
+            User currentUser = userService.findByUsername(principal.getName());
+            studyGroup.setCreatedBy(currentUser);
+            studyGroupService.save(studyGroup);
+            webSocketController.notifyClients(CREATE_MESSAGE);
+        }finally {
+            lockProvider.getReentLock().unlock();
+        }
+
         return "redirect:/user/create";
     }
 
@@ -155,8 +161,6 @@ public class StudyGroupController {
         model.addAttribute(PERSON_ATTR, new Person());
         createFullModel(model);
         return CREATE_EDIT_PAGE;
-
-
     }
 
     @PostMapping("/user/group/edit/{id}")
@@ -193,9 +197,13 @@ public class StudyGroupController {
                         "У вас нет прав для редактирования этой группы. Только создатель или администратор может её редактировать");
             return ERROR_403;
         }
-
-        studyGroupService.update(studyGroupId, studyGroup);
-        webSocketController.notifyClients(EDIT_MESSAGE + studyGroupId);
+        try{
+            lockProvider.getReentLock().lock();
+            studyGroupService.update(studyGroupId, studyGroup);
+            webSocketController.notifyClients(EDIT_MESSAGE + studyGroupId);
+        } finally {
+            lockProvider.getReentLock().unlock();
+        }
 //        return REDIRECT_USER;
         return "redirect:/user/group/edit/" + id;
     }
@@ -239,7 +247,6 @@ public class StudyGroupController {
         model.addAttribute(USERNAME_ATTR, session.getAttribute(USERNAME_ATTR));
         model.addAttribute(IS_ADMIN_ATTR, session.getAttribute(IS_ADMIN_ATTR));
         return "user/visualization-page";
-
     }
 
 
@@ -253,14 +260,17 @@ public class StudyGroupController {
     @PostMapping("/user/import")
     public String importStudyGroups(@RequestParam("file") MultipartFile file, Model model) {
         try {
+            lockProvider.getReentLock().lock();
             long savedCount = importService.saveDataFromFile(file);
             importService.saveImportHistory(file, savedCount);
             System.out.println("Импорт успешно завершен");
             model.addAttribute("message", "Импорт успешно завершен");
         } catch (Exception e) {
             importService.saveImportHistory(file,  0);
-            System.out.println("Ошибка при импорте: " + e.getMessage());
+            System.out.println("Ошибка при импорте: " + e.getMessage() + " " + e.getCause());
             model.addAttribute("error", "Ошибка при импорте: " + e.getMessage());
+        }finally {
+            lockProvider.getReentLock().unlock();
         }
         return "redirect:/user";
     }

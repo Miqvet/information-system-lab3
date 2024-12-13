@@ -62,7 +62,6 @@ public class PersonService {
         personRepository.deleteById(id);
     }
 
-    @Cacheable(value = "persons", key = "#person.passportID + #person.name + #person.eyeColor + #person.hairColor + #person.nationality + #person.location.name +  #person.location.x + #person.location.y")
     public Optional<Person> findExistingPerson(Person person) {
         Optional<Person> existingPerson = personRepository.findByPassportID(person.getPassportID());
         if (existingPerson.isPresent() && existingPerson.get().equals(person)) {

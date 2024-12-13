@@ -42,6 +42,7 @@ public class ImportService {
         importHistory.setImportDate(LocalDateTime.now());
         importHistory.setAddedBy(currentUser);
         importHistory.setStatus(savedElementsCount > 0);
+        importHistory.setCountElement(savedElementsCount);
 
         importHistoryRepository.save(importHistory);
     }
@@ -69,8 +70,8 @@ public class ImportService {
             group.setCreatedBy(currentUser);
             studyGroupService.save(group);
             savedCount++;
-            System.out.println(savedCount);
         }
+        System.out.println(savedCount);
         return savedCount;
     }
     
