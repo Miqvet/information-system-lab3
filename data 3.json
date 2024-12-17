@@ -1,0 +1,28 @@
+[
+    {
+        "name": "ASD",
+        "coordinates": {
+            "x": -100000,
+            "y": 0
+        },
+        "studentsCount": 27,
+        "expelledStudents": 3,
+        "transferredStudents": 2,
+        "shouldBeExpelled": 4,
+        "formOfEducation": "DISTANCE_EDUCATION",
+        "semesterEnum": "THIRD",
+        "averageMark": 2,
+        "groupAdmin": {
+            "name": "AAAAA",
+            "passportID": "23CAB12345",
+            "eyeColor": "GREEN",
+            "hairColor": "BLACK",
+            "nationality": "GERMANY",
+            "location": {
+                "x": -12,
+                "y": -12,
+                "name": "СМюнхен"
+            }
+        }
+    }
+]

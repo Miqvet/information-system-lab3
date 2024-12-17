@@ -1,0 +1,54 @@
+[
+    {
+        "name": "Test12",
+        "coordinates": {
+            "x": 3,
+            "y": 3
+        },
+        "studentsCount": 3,
+        "expelledStudents": 3,
+        "transferredStudents": 3,
+        "shouldBeExpelled": 3,
+        "formOfEducation": "DISTANCE_EDUCATION",
+        "semesterEnum": "THIRD",
+        "averageMark": 3,
+        "groupAdmin": {
+            "name": "Test",
+            "passportID": "333333333",
+            "eyeColor": "GREEN",
+            "hairColor": "BLACK",
+            "nationality": "GERMANY",
+            "location": {
+                "x": 3,
+                "y": 3,
+                "name": "СМюнхен"
+            }
+        }
+    },
+    {
+        "name": "Test4",
+        "coordinates": {
+            "x": 4,
+            "y": 4
+        },
+        "studentsCount": 4,
+        "expelledStudents": 4,
+        "transferredStudents": 4,
+        "shouldBeExpelled": 4,
+        "formOfEducation": "FULL_TIME_EDUCATION",
+        "semesterEnum": "FIFTH",
+        "averageMark": 4,
+        "groupAdmin": {
+            "name": "СXофия Дюпон",
+            "passportID": "44444444",
+            "eyeColor": "BLACK",
+            "hairColor": "WHITE",
+            "nationality": "FRANCE",
+            "location": {
+                "x": 4,
+                "y": 4,
+                "name": "Лион"
+            }
+        }
+    }
+]

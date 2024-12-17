@@ -258,21 +258,20 @@ public class StudyGroupController {
 
 
     @PostMapping("/user/import")
-    public String importStudyGroups(@RequestParam("file") MultipartFile file, Model model) {
+    public String importStudyGroups(@RequestParam("file") MultipartFile file, Model model) throws Exception{
         try {
             lockProvider.getReentLock().lock();
             long savedCount = importService.saveDataFromFile(file);
             importService.saveImportHistory(file, savedCount);
             System.out.println("Импорт успешно завершен");
-            model.addAttribute("message", "Импорт успешно завершен");
+            return "redirect:/user";
         } catch (Exception e) {
             importService.saveImportHistory(file,  0);
             System.out.println("Ошибка при импорте: " + e.getMessage() + " " + e.getCause());
-            model.addAttribute("error", "Ошибка при импорте: " + e.getMessage());
+            throw e;
         }finally {
             lockProvider.getReentLock().unlock();
         }
-        return "redirect:/user";
     }
 
     private void createFullModel(Model model){

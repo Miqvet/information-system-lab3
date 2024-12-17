@@ -42,8 +42,8 @@ public class PersonService {
     public void update(long id, Person person) {
         Person existingPerson = personRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("Person with id " + id + " not found"));
-
-        if (personRepository.getPersonByPassportID(person.getPassportID()).getId() != id) {
+        var existingPersonByPassport = findExistingPerson(person);
+        if (existingPersonByPassport.isPresent() && existingPersonByPassport.get().getId() != id) {
             throw new IllegalArgumentException("Человек с таким passportID уже существует");
         }
         existingPerson.setName(person.getName());
@@ -52,7 +52,6 @@ public class PersonService {
         existingPerson.setLocation(person.getLocation());
         existingPerson.setPassportID(person.getPassportID());
         existingPerson.setNationality(person.getNationality());
-        personRepository.save(existingPerson);
     }
     @Transactional
     public void deleteById(long id) {

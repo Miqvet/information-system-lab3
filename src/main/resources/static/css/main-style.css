@@ -214,3 +214,28 @@ button:hover {
 .table-container tr:hover {
     background-color: #c8e6c9; /* Мягкий зеленый при наведении */
 }
+
+
+.scroll-table-body {
+    height: 600px;
+    overflow-x: auto;
+    margin-top: 0px;
+    margin-bottom: 20px;
+}
+.scroll-table thead th {
+    font-weight: bold;
+    text-align: center;
+    border: none;
+    padding: 10px 15px;
+}
+.scroll-table tbody td {
+    text-align: center;
+    padding: 10px 15px;
+    font-size: 14px;
+    vertical-align: top;
+}
+.scroll-table table {
+    width:100%;
+    table-layout: fixed;
+    border: none;
+}

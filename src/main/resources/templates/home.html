@@ -17,6 +17,7 @@
     
     <div th:if="${#authentication.isAuthenticated()}" class="import-history">
         <h2>Import History</h2>
+        <div class="scroll-table-body">
         <table class="table-container">
             <thead>
                 <tr>
@@ -38,6 +39,7 @@
                 </tr>
             </tbody>
         </table>
+        </div>
     </div>
 </div>
 

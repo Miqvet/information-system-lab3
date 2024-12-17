@@ -1,8 +1,11 @@
 package com.example.lab1.exception;
 
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import io.jsonwebtoken.JwtException;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.ConstraintViolationException;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.orm.ObjectOptimisticLockingFailureException;
@@ -10,7 +13,6 @@ import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.servlet.ModelAndView;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.CannotAcquireLockException;
 import org.springframework.dao.PessimisticLockingFailureException;
 import org.springframework.transaction.TransactionException;
@@ -56,6 +58,14 @@ public class GlobalExceptionHandler {
         return modelAndView;
     }
 
+    @ExceptionHandler({JsonMappingException.class,
+                    JsonParseException.class})
+    public ModelAndView handleJsonParseException(JsonParseException e, HttpServletResponse response) {
+        ModelAndView modelAndView = new ModelAndView("error/bad-request");
+        modelAndView.addObject("errorMessage", "Ошибка в формате файла: " + e.getMessage());
+        response.setStatus(HttpStatus.NOT_FOUND.value());
+        return modelAndView;
+    }
     @ExceptionHandler(NoSuchElementException.class)
     public ModelAndView handleNotFoundException(NoSuchElementException e, HttpServletResponse response) {
         ModelAndView modelAndView = new ModelAndView("error/404");
@@ -87,19 +97,11 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(DataIntegrityViolationException.class)
-    public ModelAndView handleDataIntegrityViolation(DataIntegrityViolationException e, 
+    public ModelAndView handleDataIntegrityViolation(DataIntegrityViolationException e,
                                                     HttpServletResponse response) {
         ModelAndView modelAndView = new ModelAndView("error/conflict");
         String message = "Ошибка целостности данных: ";
-        
-        if (e.getCause() instanceof ConstraintViolationException) {
-            message += "Нарушение ограничений базы данных";
-        } else if (e.getMessage().contains("параллельного изменения")) {
-            message += "Конфликт при параллельном доступе. Пожалуйста, попробуйте снова";
-        } else {
-            message += e.getMessage();
-        }
-        
+        message = message + extractDetails(e.getMessage());
         modelAndView.addObject("errorMessage", message);
         response.setStatus(HttpStatus.CONFLICT.value());
         return modelAndView;
@@ -110,5 +112,18 @@ public class GlobalExceptionHandler {
         modelAndView.addObject("errorMessage", "Произошла ошибка: " + e.getMessage() + "\n" + e.getClass());
         response.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
         return modelAndView;
+    }
+    private static String extractDetails(String errorString) {
+        String keyword = "Подробности: ";
+        int startIndex = errorString.indexOf(keyword);
+
+        if (startIndex != -1) {
+            startIndex += keyword.length();
+            int endIndex = errorString.indexOf(']', startIndex);
+            if (endIndex != -1) {
+                return errorString.substring(startIndex, endIndex).trim();
+            }
+        }
+        return "Детали не найдены.";
     }
 } 
