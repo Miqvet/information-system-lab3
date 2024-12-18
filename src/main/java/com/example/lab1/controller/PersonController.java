@@ -17,6 +17,7 @@ import jakarta.validation.Valid;
 
 import lombok.AllArgsConstructor;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
@@ -29,12 +30,14 @@ import java.security.Principal;
 
 
 @Controller
-@AllArgsConstructor
 @RequestMapping("/user/people")
 public class PersonController {
 
+    @Autowired
     private final UserService userService;
+    @Autowired
     private final PersonService personService;
+    @Autowired
     private final WebSocketController webSocketController;
 
     @GetMapping("/create")

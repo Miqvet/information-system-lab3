@@ -35,6 +35,8 @@ public final class AppConstants {
     public static final String INVALID_ID_FORMAT = "Неверный формат ID";
     public static final String THRESHOLD_ERROR_MSG = "Threshold must be a valid number";
 
+    public static final int durationInSecondsForCreate = 20;
+
     private AppConstants() {
     }
 }

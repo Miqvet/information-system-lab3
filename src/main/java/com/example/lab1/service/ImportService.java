@@ -31,7 +31,6 @@ public class ImportService {
     private final ObjectMapper objectMapper;
     private final ImportHistoryRepository importHistoryRepository;
 
-    // Метод для сохранения истории импорта
     @Transactional(isolation = Isolation.REPEATABLE_READ, rollbackFor = Exception.class)
     public void saveImportHistory(MultipartFile file, long savedElementsCount) {
         ImportHistory importHistory = new ImportHistory();
@@ -47,7 +46,6 @@ public class ImportService {
         importHistoryRepository.save(importHistory);
     }
 
-    // Метод для сохранения данных из файла и возврата количества сохраненных элементов
     @Transactional(isolation = Isolation.REPEATABLE_READ, rollbackFor = Exception.class)
     public long saveDataFromFile(MultipartFile file) throws IOException {
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
@@ -96,8 +94,7 @@ public class ImportService {
 
     private void validateStudyGroup(StudyGroup group) {
         List<String> errors = new ArrayList<>();
-        
-        // Валидация основных полей StudyGroup
+
         if (group.getName() == null) {
             errors.add("Название группы не может быть null");
         } else if (group.getName().trim().isEmpty()) {
@@ -105,8 +102,7 @@ public class ImportService {
         } else if (!group.getName().matches("^[a-zA-Zа-яА-Я0-9]+(?:\\s[a-zA-Zа-яА-Я0-9]+)*$")) {
             errors.add("Название группы должно содержать только буквы, цифры и пробелы (максимум один пробел между словами)");
         }
-        
-        // Валидация Coordinates
+
         if (group.getCoordinates() == null) {
             errors.add("Coordinates не может быть null");
         } else {
@@ -149,8 +145,7 @@ public class ImportService {
         if (group.getFormOfEducation() == null) {
             errors.add("Форма обучения не может быть null");
         }
-        
-        // Валидация Person (groupAdmin)
+
         if (group.getGroupAdmin() == null) {
             errors.add("Администратор группы не может быть null");
         } else {

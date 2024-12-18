@@ -11,6 +11,7 @@ import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
 import java.io.Serializable;
+import java.time.LocalDateTime;
 import java.util.Objects;
 @Entity
 @Data
@@ -54,7 +55,9 @@ public class Person implements Serializable {
     private User createdBy; 
 
     @NotNull
-    private boolean canBeChanged = true; 
+    private boolean canBeChanged = true;
+
+    private LocalDateTime updatedTime = LocalDateTime.now();
 
     @Override
     public boolean equals(Object o) {
