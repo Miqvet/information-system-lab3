@@ -257,23 +257,6 @@ public class StudyGroupController {
     }
 
 
-    @PostMapping("/user/import")
-    public String importStudyGroups(@RequestParam("file") MultipartFile file, Model model) throws Exception{
-        try {
-            lockProvider.getReentLock().lock();
-            long savedCount = importService.saveDataFromFile(file);
-            importService.saveImportHistory(file, savedCount);
-            System.out.println("Импорт успешно завершен");
-            return "redirect:/user";
-        } catch (Exception e) {
-            importService.saveImportHistory(file,  0);
-            System.out.println("Ошибка при импорте: " + e.getMessage() + " " + e.getCause());
-            throw e;
-        }finally {
-            lockProvider.getReentLock().unlock();
-        }
-    }
-
     private void createFullModel(Model model){
         model.addAttribute("formOfEducationEnum", FormOfEducation.values());
         model.addAttribute("semesterEnum", Semester.values());

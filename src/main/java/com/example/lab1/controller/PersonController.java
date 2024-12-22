@@ -30,14 +30,12 @@ import java.security.Principal;
 
 
 @Controller
+@AllArgsConstructor
 @RequestMapping("/user/people")
 public class PersonController {
 
-    @Autowired
     private final UserService userService;
-    @Autowired
     private final PersonService personService;
-    @Autowired
     private final WebSocketController webSocketController;
 
     @GetMapping("/create")

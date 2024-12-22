@@ -25,6 +25,7 @@
                     <th>Import Date</th>
                     <th>Status</th>
                     <th>Elements count</th>
+                    <th>Download</th>
                 </tr>
             </thead>
             <tbody>
@@ -36,6 +37,11 @@
                         <span th:unless="${import.status}" class="failure">Failed</span>
                     </td>
                     <td th:text="${import.countElement}"></td>
+                    <td>
+                        <form th:action="@{/user/download/{filename}(filename=${import.fileName})}" method="get">
+                            <button type="submit">Download</button>
+                        </form>
+                    </td>
                 </tr>
             </tbody>
         </table>

@@ -8,14 +8,20 @@ import com.example.lab1.repository.ImportHistoryRepository;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import com.google.j2objc.annotations.Property;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.TransactionDefinition;
+import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.DefaultTransactionDefinition;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -24,12 +30,14 @@ import java.util.ArrayList;
 @Service
 @RequiredArgsConstructor
 public class ImportService {
+    private final PlatformTransactionManager transactionManager;
 
     private final StudyGroupService studyGroupService;
     private final PersonService personService;
     private final UserService userService;
     private final ObjectMapper objectMapper;
     private final ImportHistoryRepository importHistoryRepository;
+    private final MinioService minioService;
 
     @Transactional(isolation = Isolation.REPEATABLE_READ, rollbackFor = Exception.class)
     public void saveImportHistory(MultipartFile file, long savedElementsCount) {
@@ -46,31 +54,73 @@ public class ImportService {
         importHistoryRepository.save(importHistory);
     }
 
-    @Transactional(isolation = Isolation.REPEATABLE_READ, rollbackFor = Exception.class)
-    public long saveDataFromFile(MultipartFile file) throws IOException {
+//    @Transactional(isolation = Isolation.REPEATABLE_READ, rollbackFor = Exception.class)
+    public void saveDataFromFile(MultipartFile file) throws Exception {
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
         User currentUser = userService.findByUsername(username);
-        List<StudyGroup> studyGroups = parseStudyGroups(file);
+
+        DefaultTransactionDefinition definition = new DefaultTransactionDefinition();
+        definition.setName("vehicleImportTransaction");
+        definition.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRED);
+        definition.setIsolationLevel(TransactionDefinition.ISOLATION_REPEATABLE_READ);
+        definition.setTimeout(10);
+
+        TransactionStatus status = transactionManager.getTransaction(definition);
+
+        String fileKey = file.getOriginalFilename();
         long savedCount = 0;
-        for (StudyGroup group : studyGroups) {
-            validateStudyGroup(group);
-            Person groupAdmin = group.getGroupAdmin();
-            if (groupAdmin == null) {
-                throw new RuntimeException("GroupAdmin не может быть null");
+        boolean fileUploaded = false;
+        InputStream originalFileStream = null;
+
+        try {
+            if (minioService.fileExists(fileKey)) {
+                originalFileStream = minioService.downloadFile(fileKey);
             }
-            groupAdmin.setCreatedBy(currentUser);
-            Optional<Person> existingPerson = personService.findExistingPerson(groupAdmin);
-            if (existingPerson.isPresent()) {
-                group.setGroupAdmin(existingPerson.get());
-            } else {
-                personService.savePerson(groupAdmin);
+            minioService.uploadFile(fileKey, file.getInputStream(), file.getContentType());
+            fileUploaded = true;
+
+            List<StudyGroup> studyGroups = parseStudyGroups(file);
+            for (StudyGroup group : studyGroups) {
+                validateStudyGroup(group);
+                Person groupAdmin = group.getGroupAdmin();
+                if (groupAdmin == null) {
+                    throw new RuntimeException("GroupAdmin не может быть null");
+                }
+                groupAdmin.setCreatedBy(currentUser);
+                Optional<Person> existingPerson = personService.findExistingPerson(groupAdmin);
+                if (existingPerson.isPresent()) {
+                    group.setGroupAdmin(existingPerson.get());
+                } else {
+                    personService.savePerson(groupAdmin);
+                }
+                group.setCreatedBy(currentUser);
+                studyGroupService.save(group);
+                savedCount++;
             }
-            group.setCreatedBy(currentUser);
-            studyGroupService.save(group);
-            savedCount++;
+//            int asd = 12;
+//            int buff = 0;
+//            int buff1;
+//            if(true) buff1 = asd/buff;
+
+            transactionManager.commit(status);
+
+        } catch (Exception e) {
+            try {
+                transactionManager.rollback(status);
+                if (fileUploaded) {
+                    minioService.deleteFile(fileKey);
+                }
+                if (originalFileStream != null) {
+                    minioService.uploadFile(fileKey, originalFileStream, file.getContentType());
+                }
+            } catch (Exception rollbackException) {
+                System.err.println("Ошибка при откате транзакции: " + rollbackException.getMessage());
+            }
+            System.err.println("Ошибка при импорте: " + e.getMessage());
+            throw e;
+        } finally {
+            saveImportHistory(file, savedCount);
         }
-        System.out.println(savedCount);
-        return savedCount;
     }
     
     private List<StudyGroup> parseStudyGroups(MultipartFile file) throws IOException {

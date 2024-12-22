@@ -55,7 +55,7 @@
                 <th>Status</th>
                 <th>Count Elements</th>
                 <th>User</th>
-
+                <th>Download</th>
             </tr>
             </thead>
         </table>
@@ -71,6 +71,11 @@
                     </td>
                     <td th:text="${import.countElement}"></td>
                     <td th:text="${import.addedBy.username}"></td>
+                    <td>
+                        <form th:action="@{/user/download/{filename}(filename=${import.fileName})}" method="get">
+                            <button type="submit">Download</button>
+                        </form>
+                    </td>
                 </tr>
                 </tbody>
             </table>

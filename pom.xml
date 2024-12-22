@@ -3,7 +3,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.example</groupId>
-    <artifactId>Lab1</artifactId>
+    <artifactId>Lab3</artifactId>
     <version>1.1</version>
     <name>Lab1</name>
     <description>Lab1</description>
@@ -18,6 +18,10 @@
     </parent>
 
     <dependencies>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter</artifactId>
+        </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
@@ -133,6 +137,43 @@
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
         </dependency>
+
+        <dependency>
+            <groupId>io.minio</groupId>
+            <artifactId>minio</artifactId>
+            <version>8.5.14</version>
+        </dependency>
+
+        <dependency>
+            <groupId>jakarta.transaction</groupId>
+            <artifactId>jakarta.transaction-api</artifactId>
+            <version>2.0.0</version>
+        </dependency>
+        <!-- JTA Implementation -->
+        <dependency>
+            <groupId>org.apache.geronimo.components</groupId>
+            <artifactId>geronimo-transaction</artifactId>
+            <version>3.1</version>
+        </dependency>
+
+        <!-- Spring Transaction Management -->
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-tx</artifactId>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/com.atomikos/transactions-jta -->
+<!--        <dependency>-->
+<!--            <groupId>com.atomikos</groupId>-->
+<!--            <artifactId>transactions-jta</artifactId>-->
+<!--            <version>6.0.0</version>-->
+<!--        </dependency>-->
+<!--        <dependency>-->
+<!--            <groupId>org.jboss.narayana.arjunacore</groupId>-->
+<!--            <artifactId>arjuna</artifactId>-->
+<!--            <version>7.1.0.Final</version>-->
+<!--        </dependency>-->
+
+
     </dependencies>
     <dependencyManagement>
         <dependencies>
