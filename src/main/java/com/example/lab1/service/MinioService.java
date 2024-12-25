@@ -50,18 +50,16 @@ public class MinioService {
 
     public boolean fileExists(String fileKey) {
         try {
-            // Создаем аргументы для вызова statObject
             StatObjectArgs args = StatObjectArgs.builder()
                     .bucket(bucketName)
                     .object(fileKey)
                     .build();
 
-            // Проверяем существование объекта
             minioClient.statObject(args);
-            return true; // Файл существует
+            return true;
         } catch (ErrorResponseException e) {
             if ("NoSuchKey".equals(e.errorResponse().code())) {
-                return false; // Файл не найден
+                return false;
             }
             throw new RuntimeException("Ошибка при проверке существования файла", e);
         } catch (Exception e) {

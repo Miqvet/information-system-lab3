@@ -54,7 +54,6 @@ public class ImportService {
         importHistoryRepository.save(importHistory);
     }
 
-//    @Transactional(isolation = Isolation.REPEATABLE_READ, rollbackFor = Exception.class)
     public void saveDataFromFile(MultipartFile file) throws Exception {
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
         User currentUser = userService.findByUsername(username);
@@ -105,6 +104,7 @@ public class ImportService {
             transactionManager.commit(status);
 
         } catch (Exception e) {
+            savedCount = 0;
             try {
                 transactionManager.rollback(status);
                 if (fileUploaded) {

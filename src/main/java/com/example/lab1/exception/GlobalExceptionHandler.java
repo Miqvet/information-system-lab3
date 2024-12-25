@@ -17,6 +17,7 @@ import org.springframework.dao.CannotAcquireLockException;
 import org.springframework.dao.PessimisticLockingFailureException;
 import org.springframework.transaction.TransactionException;
 
+import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -83,7 +84,6 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler({
-        TransactionException.class,
         PessimisticLockingFailureException.class,
         ObjectOptimisticLockingFailureException.class,
         CannotAcquireLockException.class
@@ -92,6 +92,17 @@ public class GlobalExceptionHandler {
         ModelAndView modelAndView = new ModelAndView("error/conflict");
         modelAndView.addObject("errorMessage", "Конфликт при параллельном доступе: " +
             "Объект был изменен другим пользователем. Пожалуйста, попробуйте снова.");
+        response.setStatus(HttpStatus.CONFLICT.value());
+        return modelAndView;
+    }
+    @ExceptionHandler({
+            SQLException.class,
+            TransactionException.class
+    })
+    public ModelAndView handleServiceException(Exception e, HttpServletResponse response) {
+        ModelAndView modelAndView = new ModelAndView("error/conflict");
+        modelAndView.addObject("errorMessage", "Возникла ошибка: " +
+                "Один из сервисов системы в данный момент не отвечает");
         response.setStatus(HttpStatus.CONFLICT.value());
         return modelAndView;
     }
