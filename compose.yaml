@@ -1,8 +1,9 @@
 version: '3.8'
 services:
-  app:
-    build: .
-    container_name: spring-app
+  main-service:
+    build: 
+      context: ./main-service
+    container_name: main-service
     ports:
       - "8080:8080"
     environment:
@@ -14,9 +15,45 @@ services:
       MINIO_SECRET_KEY: minioadmin
       MINIO_BUCKET_NAME: imports
       MINIO_URL: http://minio:9000
+      SPRING_RABBITMQ_HOST: rabbitmq
     depends_on:
       - db
       - minio
+      - rabbitmq
+    networks:
+      - app-network
+
+  import-service:
+    build: 
+      context: ./import-service
+    container_name: import-service
+    ports:
+      - "8081:8081"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/study_group
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: miqvet
+      MINIO_ACCESS_KEY: minioadmin
+      MINIO_SECRET_KEY: minioadmin
+      MINIO_BUCKET_NAME: imports
+      MINIO_URL: http://minio:9000
+      SPRING_RABBITMQ_HOST: rabbitmq
+      MAIN_SERVICE_URL: http://main-service:8080
+    depends_on:
+      - main-service
+      - rabbitmq
+    networks:
+      - app-network
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
     networks:
       - app-network
 
@@ -49,7 +86,6 @@ services:
       - minio_config:/bitnami/minio
       - minio_data_specific:/bitnami/minio/data
       - minio_certs:/certs
-
 
 volumes:
   postgres-data:
