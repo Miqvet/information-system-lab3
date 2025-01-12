@@ -1,6 +1,6 @@
-package com.example.lab1.repository;
+package com.example.importservice.repository;
 
-import com.example.lab1.domain.entity.Person;
+import com.example.importservice.domain.entity.Person;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 

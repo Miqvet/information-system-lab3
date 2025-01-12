@@ -1,6 +1,6 @@
-package com.example.lab1.repository;
+package com.example.importservice.repository;
 
-import com.example.lab1.domain.entity.StudyGroup;
+import com.example.importservice.domain.entity.StudyGroup;
 
 import java.util.List;
 

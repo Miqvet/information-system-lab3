@@ -1,6 +1,7 @@
-package com.example.lab1.domain.entity.auth;
+package com.example.importservice.domain.entity.auth;
 
-import com.example.lab1.domain.entity.enums.RoleName;
+import com.example.importservice.domain.entity.enums.RoleName;
+import com.example.importservice.domain.entity.enums.RoleName;
 import lombok.Data;
 import jakarta.persistence.*;
 import java.io.Serializable;

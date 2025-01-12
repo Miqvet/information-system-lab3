@@ -1,9 +1,9 @@
-package com.example.lab1.domain.entity;
+package com.example.importservice.domain.entity;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
 
-import com.example.lab1.domain.entity.auth.User;
+import com.example.importservice.domain.entity.auth.User;
 import jakarta.persistence.*;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotEmpty;

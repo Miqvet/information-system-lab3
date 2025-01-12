@@ -1,4 +1,4 @@
-package com.example.lab1.domain.entity.enums;
+package com.example.importservice.domain.entity.enums;
 
 public enum RoleName {
     ROLE_USER,

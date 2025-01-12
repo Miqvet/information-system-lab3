@@ -37,4 +37,7 @@ public class ImportHistory implements Serializable {
     @ManyToOne
     @JoinColumn(name = "user_id")
     private User addedBy;
+
+    private String processingStatus;
+    private String errorMessage;
 }

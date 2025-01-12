@@ -24,19 +24,19 @@ public class StudyGroupService {
     public StudyGroupService(StudyGroupRepository studyGroupRepository) {
         this.studyGroupRepository = studyGroupRepository;
     }
-    @Cacheable(value = "studyGroups", key = "'all'")
+    // @Cacheable(value = "studyGroups", key = "'all'")
     public List<StudyGroup> findAll() {
         return studyGroupRepository.findAll();
     }
 
-    @Cacheable(value = "studyGroups", key = "#id")
+    // @Cacheable(value = "studyGroups", key = "#id")
     public StudyGroup getById(int id) throws NoSuchElementException {
         return studyGroupRepository.findById(id)
             .orElseThrow(() -> new NoSuchElementException("Group " + id + " not found"));
     }
 
     @Transactional(isolation = Isolation.REPEATABLE_READ)
-    @CacheEvict(value = "studyGroups", allEntries = true)
+    // @CacheEvict(value = "studyGroups", allEntries = true)
     public void save(StudyGroup studyGroup) throws DataIntegrityViolationException {
         if(studyGroupRepository.existsByName(studyGroup.getName())) {
             studyGroup.setName(studyGroup.getName() + " " + generateUniqueId(LocalDateTime.now()));
@@ -47,13 +47,13 @@ public class StudyGroupService {
     }
 
     @Transactional
-    @CacheEvict(value = "studyGroups", allEntries = true)
+    // @CacheEvict(value = "studyGroups", allEntries = true)
     public void deleteById(int id) {
         studyGroupRepository.deleteById(id);
     }
 
     @Transactional(isolation = Isolation.REPEATABLE_READ)
-    @CacheEvict(value = "studyGroups", allEntries = true)
+    // @CacheEvict(value = "studyGroups", allEntries = true)
     public void update(int id, StudyGroup updatedStudyGroup) throws NoSuchElementException {
         StudyGroup existingStudyGroup = studyGroupRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("StudyGroup with id " + id + " not found"));
@@ -96,7 +96,7 @@ public class StudyGroupService {
         System.out.println(existingStudyGroup);
     }
 
-    @Cacheable(value = "studyGroups", key = "'filtered:' + #filterField + ':' + #filterValue + ':' + #sortBy + ':' + #page + ':' + #pageSize")
+    // @Cacheable(value = "studyGroups", key = "'filtered:' + #filterField + ':' + #filterValue + ':' + #sortBy + ':' + #page + ':' + #pageSize")
     public Page<StudyGroup> findFilteredAndSorted(int page, int pageSize, String filterField, String filterValue, String sortBy) {
         List<StudyGroup> allGroups = findAll();
 
@@ -181,7 +181,7 @@ public class StudyGroupService {
     }
 
     @Transactional
-    @CacheEvict(value = "studyGroups", allEntries = true)
+    // @CacheEvict(value = "studyGroups", allEntries = true)
     public void expelGroupStudents(int groupId) throws NoSuchElementException {
         StudyGroup group = studyGroupRepository.findById(groupId).orElseThrow();
         group.setExpelledStudents((group.getStudentsCount() + group.getExpelledStudents()));
@@ -191,7 +191,7 @@ public class StudyGroupService {
     }
 
     @Transactional
-    @CacheEvict(value = "studyGroups", allEntries = true)
+    // @CacheEvict(value = "studyGroups", allEntries = true)
     public void transferStudents(int fromGroupId, int toGroupId) {
         StudyGroup fromGroup = studyGroupRepository.findById(fromGroupId).orElseThrow();
         StudyGroup toGroup = studyGroupRepository.findById(toGroupId).orElseThrow();

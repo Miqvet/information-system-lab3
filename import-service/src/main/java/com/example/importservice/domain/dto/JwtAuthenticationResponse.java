@@ -1,4 +1,4 @@
-package com.example.lab1.domain.dto;
+package com.example.importservice.domain.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

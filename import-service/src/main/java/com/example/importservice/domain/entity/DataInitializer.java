@@ -1,8 +1,8 @@
-package com.example.lab1.domain.entity;
+package com.example.importservice.domain.entity;
 
-import com.example.lab1.domain.entity.auth.Role;
-import com.example.lab1.domain.entity.enums.RoleName;
-import com.example.lab1.repository.auth.RoleRepository;
+import com.example.importservice.domain.entity.auth.Role;
+import com.example.importservice.domain.entity.enums.RoleName;
+import com.example.importservice.repository.auth.RoleRepository;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 

@@ -1,4 +1,4 @@
-package com.example.lab1.domain.entity;
+package com.example.importservice.domain.entity;
 
 
 import jakarta.persistence.*;

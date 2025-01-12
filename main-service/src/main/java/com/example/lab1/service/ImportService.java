@@ -1,5 +1,7 @@
 package com.example.lab1.service;
 
+import com.example.lab1.domain.dto.ImportHistoryUpdate;
+import com.example.lab1.domain.dto.ImportMessage;
 import com.example.lab1.domain.entity.StudyGroup;
 import com.example.lab1.domain.entity.ImportHistory;
 import com.example.lab1.domain.entity.Person;
@@ -10,6 +12,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import com.google.j2objc.annotations.Property;
 import lombok.RequiredArgsConstructor;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.PlatformTransactionManager;
@@ -26,6 +29,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.ArrayList;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -38,6 +42,7 @@ public class ImportService {
     private final ObjectMapper objectMapper;
     private final ImportHistoryRepository importHistoryRepository;
     private final MinioService minioService;
+    private final RabbitTemplate rabbitTemplate;
 
     @Transactional(isolation = Isolation.REPEATABLE_READ, rollbackFor = Exception.class)
     public void saveImportHistory(MultipartFile file, long savedElementsCount) {
@@ -93,15 +98,23 @@ public class ImportService {
     // Добавить метод для обновления статуса импорта
     @Transactional
     public void updateImportStatus(ImportHistoryUpdate update) {
-        ImportHistory history = importHistoryRepository.findById(update.getImportHistoryId())
-            .orElseThrow(() -> new RuntimeException("История импорта не найдена"));
+        System.out.println("\n=== [MAIN-SERVICE] Обновление статуса импорта ===");
+        System.out.println("=== [MAIN-SERVICE] ID импорта: " + update.getImportHistoryId());
+        System.out.println("=== [MAIN-SERVICE] Новый статус: " + update.getProcessingStatus());
         
-        history.setStatus(update.isStatus());
-        history.setProcessingStatus(update.getProcessingStatus());
-        history.setCountElement(update.getCountElement());
-        history.setErrorMessage(update.getErrorMessage());
-        
-        importHistoryRepository.save(history);
+        try {
+            ImportHistory history = importHistoryRepository.findById(update.getImportHistoryId())
+                .orElseThrow(() -> new RuntimeException("История импорта не найдена"));
+            
+            history.setStatus(update.isStatus());
+            history.setCountElement(update.getCountElement());
+            importHistoryRepository.save(history);
+            
+            System.out.println("=== [MAIN-SERVICE] Статус успешно обновлен ===\n");
+        } catch (Exception e) {
+            System.out.println("=== [MAIN-SERVICE] ОШИБКА при обновлении статуса: " + e.getMessage());
+            throw e;
+        }
     }
     
     private List<StudyGroup> parseStudyGroups(MultipartFile file) throws IOException {
@@ -223,6 +236,44 @@ public class ImportService {
         
         if (!errors.isEmpty()) {
             throw new RuntimeException(String.join(", ", errors));
+        }
+    }
+
+    public void processImport(MultipartFile file, String username) throws Exception {
+        System.out.println("\n=== [MAIN-SERVICE] Начало обработки импорта ===");
+        System.out.println("=== [MAIN-SERVICE] Файл: " + file.getOriginalFilename());
+        System.out.println("=== [MAIN-SERVICE] Пользователь: " + username);
+
+        try {
+            // Сохраняем файл в MinIO
+            String fileName = UUID.randomUUID().toString();
+            minioService.uploadFile(fileName, file.getInputStream(), file.getContentType());
+            System.out.println("=== [MAIN-SERVICE] Файл сохранен в MinIO: " + fileName);
+            
+            // Создаем запись в истории импорта
+            ImportHistory history = new ImportHistory();
+            history.setFileName(fileName);
+            history.setImportDate(LocalDateTime.now());
+            history.setAddedBy(userService.getByUsername(username));
+            history.setStatus(false);
+            history.setCountElement(0);
+            ImportHistory savedHistory = importHistoryRepository.save(history);
+            System.out.println("=== [MAIN-SERVICE] Создана запись в истории импорта: " + savedHistory.getId());
+            
+            // Отправляем сообщение в очередь
+            ImportMessage message = new ImportMessage(
+                fileName,
+                savedHistory.getId(),
+                savedHistory.getAddedBy().getId(),
+                file.getContentType()
+            );
+            
+            rabbitTemplate.convertAndSend("import-exchange", "import", message);
+            System.out.println("=== [MAIN-SERVICE] Сообщение отправлено в RabbitMQ ===\n");
+
+        } catch (Exception e) {
+            System.out.println("=== [MAIN-SERVICE] ОШИБКА: " + e.getMessage());
+            throw new RuntimeException("Ошибка при загрузке файла", e);
         }
     }
 }
