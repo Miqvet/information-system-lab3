@@ -65,19 +65,17 @@ public class ImportService {
         String fileKey = file.getOriginalFilename();
 
         try {
-            // Сохраняем файл в MinIO
             minioService.uploadFile(fileKey, file.getInputStream(), file.getContentType());
 
-            // Создаем запись в истории импорта
-            ImportHistory importHistory = new ImportHistory();
-            importHistory.setFileName(fileKey);
-            importHistory.setImportDate(LocalDateTime.now());
-            importHistory.setAddedBy(currentUser);
-            importHistory.setStatus(false); // Начальный статус
-            importHistory.setCountElement(0);
-            ImportHistory savedHistory = importHistoryRepository.save(importHistory);
+            // ImportHistory importHistory = new ImportHistory();
+            // importHistory.setFileName(fileKey);
+            // importHistory.setImportDate(LocalDateTime.now());
+            // importHistory.setAddedBy(currentUser);
+            // importHistory.setStatus(false); 
+            // importHistory.setCountElement(0);
+            // ImportHistory savedHistory = importHistoryRepository.save(importHistory);
 
-            // Отправляем сообщение в RabbitMQ
+        
             ImportMessage message = new ImportMessage(
                 fileKey,
                 savedHistory.getId(),
@@ -245,22 +243,20 @@ public class ImportService {
         System.out.println("=== [MAIN-SERVICE] Пользователь: " + username);
 
         try {
-            // Сохраняем файл в MinIO
+            
             String fileName = UUID.randomUUID().toString();
             minioService.uploadFile(fileName, file.getInputStream(), file.getContentType());
             System.out.println("=== [MAIN-SERVICE] Файл сохранен в MinIO: " + fileName);
+                 
+            // ImportHistory history = new ImportHistory();
+            // history.setFileName(fileName);
+            // history.setImportDate(LocalDateTime.now());
+            // history.setAddedBy(userService.getByUsername(username));
+            // history.setStatus(false);
+            // history.setCountElement(0);
+            // ImportHistory savedHistory = importHistoryRepository.save(history);
+            // System.out.println("=== [MAIN-SERVICE] Создана запись в истории импорта: " + savedHistory.getId());
             
-            // Создаем запись в истории импорта
-            ImportHistory history = new ImportHistory();
-            history.setFileName(fileName);
-            history.setImportDate(LocalDateTime.now());
-            history.setAddedBy(userService.getByUsername(username));
-            history.setStatus(false);
-            history.setCountElement(0);
-            ImportHistory savedHistory = importHistoryRepository.save(history);
-            System.out.println("=== [MAIN-SERVICE] Создана запись в истории импорта: " + savedHistory.getId());
-            
-            // Отправляем сообщение в очередь
             ImportMessage message = new ImportMessage(
                 fileName,
                 savedHistory.getId(),

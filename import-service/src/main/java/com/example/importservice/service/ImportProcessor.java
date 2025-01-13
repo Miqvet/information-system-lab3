@@ -66,8 +66,6 @@ public class ImportProcessor {
                     errors.add(error);
                 }
             }
-
-            // Обновляем только существующие поля ImportHistory
             importHistory.setStatus(true);
             importHistory.setCountElement(savedCount);
             importHistory.setAddedBy(user);
